@@ -13,11 +13,12 @@ const center: [number, number] = [57.7089, 11.9746];
 function AddMarkerOnClick({
   onAddPin,
 }: {
-  onAddPin: (lat: number, lng: number) => void;
+    onAddPin: (lat: number, lng: number, text: string) => void;
 }) {
   useMapEvents({
     click(e) {
-      onAddPin(e.latlng.lat, e.latlng.lng);
+      const text = prompt("Beskriv platsen") || "Ingen beskrivning";
+      onAddPin(e.latlng.lat, e.latlng.lng, text);
     },
   });
 
@@ -34,12 +35,12 @@ export default function MapView() {
     },
   ]);
 
-  const handleAddPin = (lat: number, lng: number) => {
+  const handleAddPin = (lat: number, lng: number, text: string) => {
     const newPin: Pin = {
       id: Date.now(),
       lat,
       lng,
-      text: "Ny rapporterad plats",
+      text,
     };
 
     setPins((prevPins) => [...prevPins, newPin]);
