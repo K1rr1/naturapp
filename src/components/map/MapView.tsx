@@ -118,6 +118,25 @@ export default function MapView() {
                 <strong>Kategori:</strong> {pin.category}
                 <br />
                 <strong>Beskrivning:</strong> {pin.text}
+
+                <br />
+                <br />
+
+                <button
+                  onClick={() => {
+                    setPins((prev) => prev.filter((p) => p.id !== pin.id));
+                  }}
+                  style={{
+                    backgroundColor: "#3ce761",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 12px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Städat!
+                </button>
               </div>
             </Popup>
           </Marker>
