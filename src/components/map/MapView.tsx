@@ -7,15 +7,18 @@ import {
   useMapEvents,
 } from "react-leaflet";
 
+type PinCategory = "skräp" | "trasigt" | "belysning" | "övrigt";
+
 type Pin = {
   id: number;
   lat: number;
   lng: number;
   text: string;
+  category: PinCategory;
 };
 
 const center: [number, number] = [57.7089, 11.9746];
-const STORAGE_KEY = "naturapp_pins";
+const STORAGE_KEY = "naturapp-pins";
 
 function AddMarkerOnClick({
   onMapClick,
@@ -24,7 +27,6 @@ function AddMarkerOnClick({
 }) {
   useMapEvents({
     click(e) {
-      console.log("Map clicked:", e.latlng.lat, e.latlng.lng);
       onMapClick(e.latlng.lat, e.latlng.lng);
     },
   });
@@ -34,8 +36,9 @@ function AddMarkerOnClick({
 
 export default function MapView() {
   const [pins, setPins] = useState<Pin[]>([]);
-  const[pendingPosition, setPendingPosition] = useState<[number, number] | null>(null);
+  const [pendingPosition, setPendingPosition] = useState<[number, number] | null>(null);
   const [textInput, setTextInput] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<PinCategory>("skräp");
   const [hasLoadedPins, setHasLoadedPins] = useState(false);
 
   useEffect(() => {
@@ -50,25 +53,24 @@ export default function MapView() {
           id: 1,
           lat: 57.7089,
           lng: 11.9746,
-          text: "Göteborgs centrum",
+          text: "Exempel: skräp hittat här",
+          category: "skräp",
         },
       ];
 
       setPins(defaultPins);
-      }
+    }
 
     setHasLoadedPins(true);
   }, []);
-  
+
   useEffect(() => {
     if (!hasLoadedPins) return;
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
   }, [pins, hasLoadedPins]);
 
-
-   const handleMapClick = (lat: number, lng: number) => {
-    console.log("handleMapClick körs:)))))");
+  const handleMapClick = (lat: number, lng: number) => {
     setPendingPosition([lat, lng]);
   };
 
@@ -80,16 +82,19 @@ export default function MapView() {
       lat: pendingPosition[0],
       lng: pendingPosition[1],
       text: textInput || "Ingen beskrivning",
+      category: selectedCategory,
     };
 
     setPins((prev) => [...prev, newPin]);
     setPendingPosition(null);
     setTextInput("");
+    setSelectedCategory("skräp");
   };
 
-   const handleCancel = () => {
+  const handleCancel = () => {
     setPendingPosition(null);
     setTextInput("");
+    setSelectedCategory("skräp");
   };
 
   return (
@@ -108,7 +113,13 @@ export default function MapView() {
 
         {pins.map((pin) => (
           <Marker key={pin.id} position={[pin.lat, pin.lng]}>
-            <Popup>{pin.text}</Popup>
+            <Popup>
+              <div>
+                <strong>Kategori:</strong> {pin.category}
+                <br />
+                <strong>Beskrivning:</strong> {pin.text}
+              </div>
+            </Popup>
           </Marker>
         ))}
       </MapContainer>
@@ -116,7 +127,7 @@ export default function MapView() {
       {pendingPosition && (
         <div
           style={{
-       position: "absolute",
+            position: "absolute",
             left: "12px",
             right: "12px",
             bottom: "12px",
@@ -137,15 +148,30 @@ export default function MapView() {
             style={{
               width: "100%",
               marginBottom: "12px",
-              padding: "8px",
+              padding: "10px",
               boxSizing: "border-box",
             }}
           />
 
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value as PinCategory)}
+            style={{
+              width: "100%",
+              marginBottom: "12px",
+              padding: "10px",
+              boxSizing: "border-box",
+            }}
+          >
+            <option value="skräp">Skräp</option>
+            <option value="trasigt">Trasigt</option>
+            <option value="belysning">Belysning</option>
+            <option value="övrigt">Övrigt</option>
+          </select>
+
           <div style={{ display: "flex", gap: "8px" }}>
             <button onClick={handleAddPin}>Lägg till</button>
             <button onClick={handleCancel}>Avbryt</button>
-            
           </div>
         </div>
       )}
