@@ -1,38 +1,13 @@
 import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  useMapEvents,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 
-type PinCategory = "skräp" | "trasigt" | "belysning" | "övrigt";
+import AddMarkerOnClick from "./AddMarkerOnClick";
+import AddPinForm from "./AddPinForm";
 
-type Pin = {
-  id: number;
-  lat: number;
-  lng: number;
-  text: string;
-  category: PinCategory;
-};
+import type { Pin, PinCategory } from "../../features/pins/pins.types";
+import { loadPins, savePins } from "../../features/pins/pins.storage";
 
 const center: [number, number] = [57.7089, 11.9746];
-const STORAGE_KEY = "naturapp-pins";
-
-function AddMarkerOnClick({
-  onMapClick,
-}: {
-  onMapClick: (lat: number, lng: number) => void;
-}) {
-  useMapEvents({
-    click(e) {
-      onMapClick(e.latlng.lat, e.latlng.lng);
-    },
-  });
-
-  return null;
-}
 
 export default function MapView() {
   const [pins, setPins] = useState<Pin[]>([]);
@@ -42,11 +17,10 @@ export default function MapView() {
   const [hasLoadedPins, setHasLoadedPins] = useState(false);
 
   useEffect(() => {
-    const savedPins = localStorage.getItem(STORAGE_KEY);
+    const savedPins = loadPins();
 
-    if (savedPins) {
-      const parsedPins: Pin[] = JSON.parse(savedPins);
-      setPins(parsedPins);
+    if (savedPins.length > 0) {
+      setPins(savedPins);
     } else {
       const defaultPins: Pin[] = [
         {
@@ -66,8 +40,7 @@ export default function MapView() {
 
   useEffect(() => {
     if (!hasLoadedPins) return;
-
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(pins));
+    savePins(pins);
   }, [pins, hasLoadedPins]);
 
   const handleMapClick = (lat: number, lng: number) => {
@@ -97,6 +70,10 @@ export default function MapView() {
     setSelectedCategory("skräp");
   };
 
+  const handleCleanPin = (pinId: number) => {
+    setPins((prev) => prev.filter((pin) => pin.id !== pinId));
+  };
+
   return (
     <div style={{ height: "100vh", width: "100%", position: "relative" }}>
       <MapContainer
@@ -118,24 +95,20 @@ export default function MapView() {
                 <strong>Kategori:</strong> {pin.category}
                 <br />
                 <strong>Beskrivning:</strong> {pin.text}
-
                 <br />
                 <br />
-
                 <button
-                  onClick={() => {
-                    setPins((prev) => prev.filter((p) => p.id !== pin.id));
-                  }}
+                  onClick={() => handleCleanPin(pin.id)}
                   style={{
-                    backgroundColor: "#3ce761",
+                    padding: "6px 10px",
+                    background: "#2e7d32",
                     color: "white",
                     border: "none",
-                    padding: "8px 12px",
-                    borderRadius: "4px",
+                    borderRadius: "6px",
                     cursor: "pointer",
                   }}
                 >
-                  Städat!
+                  Städat
                 </button>
               </div>
             </Popup>
@@ -144,55 +117,14 @@ export default function MapView() {
       </MapContainer>
 
       {pendingPosition && (
-        <div
-          style={{
-            position: "absolute",
-            left: "12px",
-            right: "12px",
-            bottom: "12px",
-            backgroundColor: "white",
-            padding: "16px",
-            borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-            zIndex: 1000,
-          }}
-        >
-          <p style={{ margin: "0 0 10px 0", fontWeight: "bold" }}>Ny markör</p>
-
-          <input
-            type="text"
-            placeholder="Beskriv platsen"
-            value={textInput}
-            onChange={(e) => setTextInput(e.target.value)}
-            style={{
-              width: "100%",
-              marginBottom: "12px",
-              padding: "10px",
-              boxSizing: "border-box",
-            }}
-          />
-
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value as PinCategory)}
-            style={{
-              width: "100%",
-              marginBottom: "12px",
-              padding: "10px",
-              boxSizing: "border-box",
-            }}
-          >
-            <option value="skräp">Skräp</option>
-            <option value="trasigt">Trasigt</option>
-            <option value="belysning">Belysning</option>
-            <option value="övrigt">Övrigt</option>
-          </select>
-
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button onClick={handleAddPin}>Lägg till</button>
-            <button onClick={handleCancel}>Avbryt</button>
-          </div>
-        </div>
+        <AddPinForm
+          textInput={textInput}
+          selectedCategory={selectedCategory}
+          onTextChange={setTextInput}
+          onCategoryChange={setSelectedCategory}
+          onAddPin={handleAddPin}
+          onCancel={handleCancel}
+        />
       )}
     </div>
   );
