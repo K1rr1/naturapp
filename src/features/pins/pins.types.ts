@@ -6,4 +6,6 @@ export interface Pin {
   lng: number;
   text: string;
   category: PinCategory;
+  createdAt?: string;
+  createdBy?: string;
 };
