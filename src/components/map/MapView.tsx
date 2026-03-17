@@ -1,52 +1,33 @@
-import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import type { Pin } from "../../features/pins/pins.types";
+import { useState } from "react";
 
-import AddMarkerOnClick from "./AddMarkerOnClick";
-import AddPinForm from "./AddPinForm";
+type MapViewProps = {
+  currentUserName: string;
+  pins: Pin[];
+  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
+};
 
-import type { Pin, PinCategory } from "../../features/pins/pins.types";
-import { loadPins, savePins } from "../../features/pins/pins.storage";
-
-const center: [number, number] = [57.7089, 11.9746];
-
-export default function MapView() {
-  const [pins, setPins] = useState<Pin[]>([]);
+export default function MapView({
+  currentUserName,
+  pins,
+  setPins,
+}: MapViewProps) {
   const [pendingPosition, setPendingPosition] = useState<[number, number] | null>(null);
   const [textInput, setTextInput] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<PinCategory>("skräp");
-  const [hasLoadedPins, setHasLoadedPins] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Pin["category"]>("skräp");
 
-  useEffect(() => {
-    const savedPins = loadPins();
+  // 👉 Lyssnar på klick på kartan
+  function AddMarkerOnClick() {
+    useMapEvents({
+      click(e) {
+        setPendingPosition([e.latlng.lat, e.latlng.lng]);
+      },
+    });
+    return null;
+  }
 
-    if (savedPins.length > 0) {
-      setPins(savedPins);
-    } else {
-      const defaultPins: Pin[] = [
-        {
-          id: 1,
-          lat: 57.7089,
-          lng: 11.9746,
-          text: "Exempel: skräp hittat här",
-          category: "skräp",
-        },
-      ];
-
-      setPins(defaultPins);
-    }
-
-    setHasLoadedPins(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hasLoadedPins) return;
-    savePins(pins);
-  }, [pins, hasLoadedPins]);
-
-  const handleMapClick = (lat: number, lng: number) => {
-    setPendingPosition([lat, lng]);
-  };
-
+  // 👉 Lägg till pin
   const handleAddPin = () => {
     if (!pendingPosition) return;
 
@@ -56,6 +37,7 @@ export default function MapView() {
       lng: pendingPosition[1],
       text: textInput || "Ingen beskrivning",
       category: selectedCategory,
+      createdBy: currentUserName,
     };
 
     setPins((prev) => [...prev, newPin]);
@@ -64,68 +46,94 @@ export default function MapView() {
     setSelectedCategory("skräp");
   };
 
-  const handleCancel = () => {
-    setPendingPosition(null);
-    setTextInput("");
-    setSelectedCategory("skräp");
-  };
-
-  const handleCleanPin = (pinId: number) => {
-    setPins((prev) => prev.filter((pin) => pin.id !== pinId));
+  // 👉 Ta bort pin ("städat")
+  const handleCleanPin = (id: number) => {
+    setPins((prev) => prev.filter((pin) => pin.id !== id));
   };
 
   return (
-    <div style={{ height: "100vh", width: "100%", position: "relative" }}>
+    <div style={{ height: "100vh", width: "100%" }}>
       <MapContainer
-        center={center}
-        zoom={12}
+        center={[57.7089, 11.9746]}
+        zoom={13}
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
+          attribution='&copy; OpenStreetMap contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; OpenStreetMap contributors"
         />
 
-        <AddMarkerOnClick onMapClick={handleMapClick} />
+<AddMarkerOnClick />
 
-        {pins.map((pin) => (
-          <Marker key={pin.id} position={[pin.lat, pin.lng]}>
+        {pins.map((pin) => {
+          const isOwner = pin.createdBy === currentUserName;
+
+          return (
+            <Marker key={pin.id} position={[pin.lat, pin.lng]}>
+              <Popup>
+                <div>
+                  <strong>Kategori:</strong> {pin.category}
+                  <br />
+                  <strong>Beskrivning:</strong> {pin.text}
+                  <br />
+                  <strong>Rapporterad av:</strong> {pin.createdBy}
+                  <br />
+                  <br />
+
+                  {isOwner ? (
+                    <button
+                      onClick={() => handleCleanPin(pin.id)}
+                      style={{
+                        padding: "6px 10px",
+                        background: "#2e7d32",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Städat
+                    </button>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: "14px" }}>
+                      Bara skaparen kan markera denna som städad.
+                    </p>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+
+        {pendingPosition && (
+          <Marker position={pendingPosition}>
             <Popup>
-              <div>
-                <strong>Kategori:</strong> {pin.category}
-                <br />
-                <strong>Beskrivning:</strong> {pin.text}
-                <br />
-                <br />
-                <button
-                  onClick={() => handleCleanPin(pin.id)}
-                  style={{
-                    padding: "6px 10px",
-                    background: "#2e7d32",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
+              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                <input
+                  type="text"
+                  placeholder="Beskrivning"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                />
+
+                <select
+                  value={selectedCategory}
+                  onChange={(e) =>
+                    setSelectedCategory(e.target.value as Pin["category"])
+                  }
                 >
-                  Städat
-                </button>
+                  <option value="skräp">Skräp</option>
+                  <option value="trasigt">Trasigt</option>
+                  <option value="belysning">Belysning</option>
+                  <option value="övrigt">Övrigt</option>
+                </select>
+
+                <button onClick={handleAddPin}>Lägg till</button>
               </div>
             </Popup>
           </Marker>
-        ))}
+        )}
       </MapContainer>
-
-      {pendingPosition && (
-        <AddPinForm
-          textInput={textInput}
-          selectedCategory={selectedCategory}
-          onTextChange={setTextInput}
-          onCategoryChange={setSelectedCategory}
-          onAddPin={handleAddPin}
-          onCancel={handleCancel}
-        />
-      )}
     </div>
   );
 }
