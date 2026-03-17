@@ -2,27 +2,28 @@ import { useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Popup,
-  useMapEvents,
- 
-  Marker,
-} from "react-leaflet";
+  
+  useMapEvents,} from "react-leaflet";
+
 
 import type {
   Pin,
   PinCategory,
   CategoryFilter,
-  OwnerFilter,
-} from "../../features/pins/pins.types";
+  OwnerFilter,} from "../../features/pins/pins.types";
+
+
 import MapFilters from "./MapFilters";
 import MapPins from "./MapPins";
+import AddPinForm from "./AddPinForm";
+import { usePins } from "../../features/pins/usePins";
+import { useFilters } from "../../features/pins/useFilters.ts";
 
 
 type MapViewProps = {
   currentUserName: string;
   pins: Pin[];
-  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
-};
+  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;};
 
 
 
@@ -48,28 +49,17 @@ export default function MapView({
     return null;
   }
 
-  const handleAddPin = () => {
-    if (!pendingPosition) return;
+const { handleAddPin, handleCleanPin } = usePins({
+  currentUserName,
+  pendingPosition,
+  textInput,
+  selectedCategory,
+  setPins,
+  setPendingPosition,
+  setTextInput,
+  setSelectedCategory,
+});
 
-    const newPin: Pin = {
-      id: Date.now(),
-      lat: pendingPosition[0],
-      lng: pendingPosition[1],
-      text: textInput || "Ingen beskrivning",
-      category: selectedCategory,
-      createdBy: currentUserName,
-    };
-
-    setPins((prev) => [...prev, newPin]);
-
-    setPendingPosition(null);
-    setTextInput("");
-    setSelectedCategory("skräp");
-  };
-
-  const handleCleanPin = (id: number) => {
-    setPins((prev) => prev.filter((pin) => pin.id !== id));
-  };
 
   const handleResetFilters = () => {
     setCategoryFilter("alla");
@@ -78,17 +68,12 @@ export default function MapView({
 
 
 
-  const filteredPins = pins.filter((pin) => {
-    const matchesCategory =
-      categoryFilter === "alla" || pin.category === categoryFilter;
-
-    const matchesOwner =
-      ownerFilter === "alla" ||
-      (ownerFilter === "mina" && pin.createdBy === currentUserName) ||
-      (ownerFilter === "andras" && pin.createdBy !== currentUserName);
-
-    return matchesCategory && matchesOwner;
-  });
+  const { filteredPins } = useFilters({
+  pins,
+  categoryFilter,
+  ownerFilter,
+  currentUserName,
+});
 
   return (
     <div style={{ height: "100vh", width: "100%", position: "relative" }}>
@@ -110,36 +95,17 @@ export default function MapView({
           currentUserName={currentUserName}
           onCleanPin={handleCleanPin}
         />
-
-        {/* 🔹 Form för ny pin */}
         {pendingPosition && (
-          <Marker position={pendingPosition}>
-            <Popup>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <input
-                  type="text"
-                  placeholder="Beskrivning"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                />
-
-                <select
-                  value={selectedCategory}
-                  onChange={(e) =>
-                    setSelectedCategory(e.target.value as PinCategory)
-                  }
-                >
-                  <option value="skräp">🗑️ Skräp</option>
-                  <option value="trasigt">🔧 Trasigt</option>
-                  <option value="belysning">💡 Belysning</option>
-                  <option value="övrigt">📦 Övrigt</option>
-                </select>
-
-                <button onClick={handleAddPin}>Lägg till</button>
-              </div>
-            </Popup>
-          </Marker>
+          <AddPinForm
+            pendingPosition={pendingPosition}
+            textInput={textInput}
+            selectedCategory={selectedCategory}
+            onTextChange={setTextInput}
+            onCategoryChange={setSelectedCategory}
+            onAddPin={handleAddPin}
+          />
         )}
+
       </MapContainer>
 
       {/* 🔹 NY komponent istället för inline UI */}
