@@ -1,4 +1,4 @@
-export type PinCategory = "skräp" | "farligt avfall" | "naturvård" | "annat";
+export type PinCategory = "skräp" | "trasigt" | "belysning" | "övrigt";
 
 export interface Pin {
   id: number;

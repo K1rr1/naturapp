@@ -1,5 +1,5 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
-import type { Pin } from "../../features/pins/pins.types";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents, CircleMarker } from "react-leaflet";
+import type { Pin, PinCategory } from "../../features/pins/pins.types";
 import { useState } from "react";
 
 type MapViewProps = {
@@ -7,6 +7,8 @@ type MapViewProps = {
   pins: Pin[];
   setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
 };
+type CategoryFilter = PinCategory | "alla";
+type OwnerFilter = "alla" | "mina" | "andras";
 
 export default function MapView({
   currentUserName,
@@ -15,7 +17,12 @@ export default function MapView({
 }: MapViewProps) {
   const [pendingPosition, setPendingPosition] = useState<[number, number] | null>(null);
   const [textInput, setTextInput] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<Pin["category"]>("skräp");
+  const [selectedCategory, setSelectedCategory] = useState<PinCategory>("skräp");
+
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alla");
+  const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>("alla");
+
+
 
   // 👉 Lyssnar på klick på kartan
   function AddMarkerOnClick() {
@@ -51,6 +58,30 @@ export default function MapView({
     setPins((prev) => prev.filter((pin) => pin.id !== id));
   };
 
+  const getMarkerColor = (category: PinCategory) => {
+    switch (category) {
+      case "skräp":
+        return "red";
+      case "trasigt":
+        return "orange";
+      case "belysning":
+        return "yellow";
+      case "övrigt":
+        return "blue";
+      default:
+        return "gray";
+    }
+  };
+  const filteredPins = pins.filter((pin) => {
+    const matchesCategory =
+      categoryFilter === "alla" || pin.category === categoryFilter;
+    const matchesOwner =
+      ownerFilter === "alla" || (ownerFilter === "mina" && pin.createdBy === currentUserName) || (ownerFilter === "andras" && pin.createdBy !== currentUserName);
+
+    return matchesCategory && matchesOwner;
+  });
+
+
   return (
     <div style={{ height: "100vh", width: "100%" }}>
       <MapContainer
@@ -63,13 +94,18 @@ export default function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-<AddMarkerOnClick />
+    <AddMarkerOnClick />
 
-        {pins.map((pin) => {
+        {filteredPins.map((pin) => {
           const isOwner = pin.createdBy === currentUserName;
+          const markerColor = getMarkerColor(pin.category);
 
           return (
-            <Marker key={pin.id} position={[pin.lat, pin.lng]}>
+            <CircleMarker 
+            key={pin.id} 
+            center={[pin.lat, pin.lng]} 
+            radius={10} 
+            pathOptions={{ color: markerColor, fillColor: markerColor, fillOpacity: 0.5 }}>
               <Popup>
                 <div>
                   <strong>Kategori:</strong> {pin.category}
@@ -101,7 +137,7 @@ export default function MapView({
                   )}
                 </div>
               </Popup>
-            </Marker>
+            </CircleMarker>
           );
         })}
 
@@ -119,7 +155,7 @@ export default function MapView({
                 <select
                   value={selectedCategory}
                   onChange={(e) =>
-                    setSelectedCategory(e.target.value as Pin["category"])
+                    setSelectedCategory(e.target.value as PinCategory)
                   }
                 >
                   <option value="skräp">Skräp</option>
@@ -134,6 +170,44 @@ export default function MapView({
           </Marker>
         )}
       </MapContainer>
+<div
+        style={{
+          position: "absolute",
+          top: "12px",
+          left: "12px",
+          zIndex: 1000,
+          background: "white",
+          padding: "12px",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          display: "flex",
+          flexDirection: "column",
+          gap: "8px",
+          minWidth: "160px",
+        }}
+      >
+        <strong>Filter</strong>
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}
+        >
+          <option value="alla">Alla kategorier</option>
+          <option value="skräp">Skräp</option>
+          <option value="trasigt">Trasigt</option>
+          <option value="belysning">Belysning</option>
+          <option value="övrigt">Övrigt</option>
+        </select>
+
+        <select
+          value={ownerFilter}
+          onChange={(e) => setOwnerFilter(e.target.value as OwnerFilter)}
+        >
+          <option value="alla">Alla rapporter</option>
+          <option value="mina">Mina</option>
+          <option value="andras">Andras</option>
+        </select>
+      </div>
     </div>
   );
 }
