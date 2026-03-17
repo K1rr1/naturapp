@@ -41,9 +41,9 @@ export default function MapView({
     };
 
     setPins((prev) => [...prev, newPin]);
-
     setPendingPosition(null);
     setTextInput("");
+    setSelectedCategory("skräp");
   };
 
   // 👉 Ta bort pin ("städat")
@@ -63,39 +63,48 @@ export default function MapView({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-        <AddMarkerOnClick />
+<AddMarkerOnClick />
 
-        {/* 🔹 Rendera alla pins */}
-        {pins.map((pin) => (
-          <Marker key={pin.id} position={[pin.lat, pin.lng]}>
-            <Popup>
-              <div>
-                <strong>Kategori:</strong> {pin.category}
-                <br />
-                <strong>Beskrivning:</strong> {pin.text}
-                <br />
-                <strong>Rapporterad av:</strong> {pin.createdBy}
-                <br />
-                <br />
-                <button
-                  onClick={() => handleCleanPin(pin.id)}
-                  style={{
-                    padding: "6px 10px",
-                    background: "#2e7d32",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "6px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Städat
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {pins.map((pin) => {
+          const isOwner = pin.createdBy === currentUserName;
 
-        {/* 🔹 Form när man klickat på kartan */}
+          return (
+            <Marker key={pin.id} position={[pin.lat, pin.lng]}>
+              <Popup>
+                <div>
+                  <strong>Kategori:</strong> {pin.category}
+                  <br />
+                  <strong>Beskrivning:</strong> {pin.text}
+                  <br />
+                  <strong>Rapporterad av:</strong> {pin.createdBy}
+                  <br />
+                  <br />
+
+                  {isOwner ? (
+                    <button
+                      onClick={() => handleCleanPin(pin.id)}
+                      style={{
+                        padding: "6px 10px",
+                        background: "#2e7d32",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Städat
+                    </button>
+                  ) : (
+                    <p style={{ margin: 0, fontSize: "14px" }}>
+                      Bara skaparen kan markera denna som städad.
+                    </p>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+
         {pendingPosition && (
           <Marker position={pendingPosition}>
             <Popup>
