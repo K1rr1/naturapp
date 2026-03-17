@@ -9,7 +9,12 @@ import { loadPins, savePins } from "../../features/pins/pins.storage";
 
 const center: [number, number] = [57.7089, 11.9746];
 
-export default function MapView() {
+type MapViewProps = {
+  currentUserName: string;
+};
+
+export default function MapView({ currentUserName }: MapViewProps) {
+
   const [pins, setPins] = useState<Pin[]>([]);
   const [pendingPosition, setPendingPosition] = useState<[number, number] | null>(null);
   const [textInput, setTextInput] = useState("");
@@ -29,6 +34,8 @@ export default function MapView() {
           lng: 11.9746,
           text: "Exempel: skräp hittat här",
           category: "skräp",
+          createdAt: new Date().toISOString(),
+          createdBy: "System",
         },
       ];
 
@@ -56,6 +63,8 @@ export default function MapView() {
       lng: pendingPosition[1],
       text: textInput || "Ingen beskrivning",
       category: selectedCategory,
+      createdAt: new Date().toISOString(),
+      createdBy: currentUserName,
     };
 
     setPins((prev) => [...prev, newPin]);
@@ -92,11 +101,16 @@ export default function MapView() {
           <Marker key={pin.id} position={[pin.lat, pin.lng]}>
             <Popup>
               <div>
-                <strong>Kategori:</strong> {pin.category}
-                <br />
-                <strong>Beskrivning:</strong> {pin.text}
-                <br />
-                <br />
+              <strong>Kategori:</strong> {pin.category}
+    <br />
+    <strong>Beskrivning:</strong> {pin.text}
+    <br />
+    <strong>Rapporterad av:</strong> {pin.createdBy}
+    <br />
+    <strong>Skapad:</strong> {pin.createdAt}
+    <br />
+    <br />
+    
                 <button
                   onClick={() => handleCleanPin(pin.id)}
                   style={{

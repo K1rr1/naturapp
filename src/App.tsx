@@ -77,7 +77,7 @@ export default function App() {
 
   return (
     <div style={{ position: "relative" }}>
-      <MapView />
+      <MapView currentUserName={currentUser.name}/>
 
       <ProfileButton
         name={currentUser.name}
