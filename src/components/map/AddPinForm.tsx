@@ -1,71 +1,47 @@
+import { Marker, Popup } from "react-leaflet";
 import type { PinCategory } from "../../features/pins/pins.types";
 
 type AddPinFormProps = {
+  pendingPosition: [number, number];
   textInput: string;
   selectedCategory: PinCategory;
   onTextChange: (value: string) => void;
   onCategoryChange: (value: PinCategory) => void;
   onAddPin: () => void;
-  onCancel: () => void;
 };
 
 export default function AddPinForm({
+  pendingPosition,
   textInput,
   selectedCategory,
   onTextChange,
   onCategoryChange,
   onAddPin,
-  onCancel,
 }: AddPinFormProps) {
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: "12px",
-        right: "12px",
-        bottom: "12px",
-        backgroundColor: "white",
-        padding: "16px",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-        zIndex: 1000,
-      }}
-    >
-      <p style={{ margin: "0 0 10px 0", fontWeight: "bold" }}>Ny markör</p>
+    <Marker position={pendingPosition}>
+      <Popup>
+        <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          <input
+            type="text"
+            placeholder="Beskrivning"
+            value={textInput}
+            onChange={(e) => onTextChange(e.target.value)}
+          />
 
-      <input
-        type="text"
-        placeholder="Beskriv platsen"
-        value={textInput}
-        onChange={(e) => onTextChange(e.target.value)}
-        style={{
-          width: "100%",
-          marginBottom: "12px",
-          padding: "10px",
-          boxSizing: "border-box",
-        }}
-      />
+          <select
+            value={selectedCategory}
+            onChange={(e) => onCategoryChange(e.target.value as PinCategory)}
+          >
+            <option value="skräp">🗑️ Skräp</option>
+            <option value="trasigt">🔧 Trasigt</option>
+            <option value="belysning">💡 Belysning</option>
+            <option value="övrigt">📦 Övrigt</option>
+          </select>
 
-      <select
-        value={selectedCategory}
-        onChange={(e) => onCategoryChange(e.target.value as PinCategory)}
-        style={{
-          width: "100%",
-          marginBottom: "12px",
-          padding: "10px",
-          boxSizing: "border-box",
-        }}
-      >
-        <option value="skräp">Skräp</option>
-        <option value="trasigt">Trasigt</option>
-        <option value="belysning">Belysning</option>
-        <option value="övrigt">Övrigt</option>
-      </select>
-
-      <div style={{ display: "flex", gap: "8px" }}>
-        <button onClick={onAddPin}>Lägg till</button>
-        <button onClick={onCancel}>Avbryt</button>
-      </div>
-    </div>
+          <button onClick={onAddPin}>Lägg till</button>
+        </div>
+      </Popup>
+    </Marker>
   );
 }

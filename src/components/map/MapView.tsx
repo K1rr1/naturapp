@@ -1,14 +1,31 @@
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents, CircleMarker } from "react-leaflet";
-import type { Pin, PinCategory } from "../../features/pins/pins.types";
 import { useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  
+  useMapEvents,} from "react-leaflet";
+
+
+import type {
+  Pin,
+  PinCategory,
+  CategoryFilter,
+  OwnerFilter,} from "../../features/pins/pins.types";
+
+
+import MapFilters from "./MapFilters";
+import MapPins from "./MapPins";
+import AddPinForm from "./AddPinForm";
+import { usePins } from "../../features/pins/usePins";
+import { useFilters } from "../../features/pins/useFilters.ts";
+
 
 type MapViewProps = {
   currentUserName: string;
   pins: Pin[];
-  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
-};
-type CategoryFilter = PinCategory | "alla";
-type OwnerFilter = "alla" | "mina" | "andras";
+  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;};
+
+
 
 export default function MapView({
   currentUserName,
@@ -22,40 +39,31 @@ export default function MapView({
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alla");
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>("alla");
 
-
-
-  // 👉 Lyssnar på klick på kartan
   function AddMarkerOnClick() {
     useMapEvents({
       click(e) {
         setPendingPosition([e.latlng.lat, e.latlng.lng]);
       },
     });
+
     return null;
   }
 
-  // 👉 Lägg till pin
-  const handleAddPin = () => {
-    if (!pendingPosition) return;
+const { handleAddPin, handleCleanPin } = usePins({
+  currentUserName,
+  pendingPosition,
+  textInput,
+  selectedCategory,
+  setPins,
+  setPendingPosition,
+  setTextInput,
+  setSelectedCategory,
+});
 
-    const newPin: Pin = {
-      id: Date.now(),
-      lat: pendingPosition[0],
-      lng: pendingPosition[1],
-      text: textInput || "Ingen beskrivning",
-      category: selectedCategory,
-      createdBy: currentUserName,
-    };
 
-    setPins((prev) => [...prev, newPin]);
-    setPendingPosition(null);
-    setTextInput("");
-    setSelectedCategory("skräp");
-  };
-
-  // 👉 Ta bort pin ("städat")
-  const handleCleanPin = (id: number) => {
-    setPins((prev) => prev.filter((pin) => pin.id !== id));
+  const handleResetFilters = () => {
+    setCategoryFilter("alla");
+    setOwnerFilter("alla");
   };
   const handleResetFilters = () => { 
     setCategoryFilter("alla");
@@ -123,169 +131,58 @@ export default function MapView({
   categoryFilter !== "alla" || 
   ownerFilter !== "alla";
 
+
+
+  const { filteredPins } = useFilters({
+  pins,
+  categoryFilter,
+  ownerFilter,
+  currentUserName,
+});
+
   return (
-    <div style={{ height: "100vh", width: "100%" }}>
+    <div style={{ height: "100vh", width: "100%", position: "relative" }}>
       <MapContainer
         center={[57.7089, 11.9746]}
         zoom={13}
         style={{ height: "100%", width: "100%" }}
       >
         <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
+          attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
 
-    <AddMarkerOnClick />
+        <AddMarkerOnClick />
 
-        {filteredPins.map((pin) => {
-          const isOwner = pin.createdBy === currentUserName;
-          const markerColor = getMarkerColor(pin.category);
-
-          return (
-            <CircleMarker 
-            key={pin.id} 
-            center={[pin.lat, pin.lng]} 
-            radius={10} 
-            pathOptions={{ color: markerColor, fillColor: markerColor, fillOpacity: 0.5 }}>
-              <Popup>
-                <div>
-                  <strong>Kategori:</strong> {pin.category}
-                  <br />
-                  <strong>Beskrivning:</strong> {pin.text}
-                  <br />
-                  <strong>Rapporterad av:</strong> {pin.createdBy}
-                  <br />
-                  <br />
-
-                  {isOwner ? (
-                    <button
-                      onClick={() => handleCleanPin(pin.id)}
-                      style={{
-                        padding: "6px 10px",
-                        background: "#2e7d32",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "6px",
-                        cursor: "pointer",
-                      }}
-                    >
-                      Städat
-                    </button>
-                  ) : (
-                    <p style={{ margin: 0, fontSize: "14px" }}>
-                      Bara skaparen kan markera denna som städad.
-                    </p>
-                  )}
-                </div>
-              </Popup>
-            </CircleMarker>
-          );
-        })}
-
+        {/* 🔹 Rendera pins */}
+        <MapPins
+          pins={filteredPins}
+          currentUserName={currentUserName}
+          onCleanPin={handleCleanPin}
+        />
         {pendingPosition && (
-          <Marker position={pendingPosition}>
-            <Popup>
-              <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                <input
-                  type="text"
-                  placeholder="Beskrivning"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                />
-
-                <select
-                  value={selectedCategory}
-                  onChange={(e) =>
-                    setSelectedCategory(e.target.value as PinCategory)
-                  }
-                >
-                  <option value="skräp">Skräp</option>
-                  <option value="trasigt">Trasigt</option>
-                  <option value="belysning">Belysning</option>
-                  <option value="övrigt">Övrigt</option>
-                </select>
-
-                <button onClick={handleAddPin}>Lägg till</button>
-              </div>
-            </Popup>
-          </Marker>
+          <AddPinForm
+            pendingPosition={pendingPosition}
+            textInput={textInput}
+            selectedCategory={selectedCategory}
+            onTextChange={setTextInput}
+            onCategoryChange={setSelectedCategory}
+            onAddPin={handleAddPin}
+          />
         )}
+
       </MapContainer>
-<div
-        style={{
-          position: "absolute",
-          top: "12px",
-          left: "12px",
-          zIndex: 1000,
-          background: "white",
-          padding: "12px",
-          borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-          display: "flex",
-          flexDirection: "column",
-          gap: "8px",
-          minWidth: "160px",
-        }}
-      >
-     {hasActiveFilters && (
-          <div
-            style={{
-              fontSize: "13px",
-              padding: "8px",
-              background: "#f3f4f6",
-              borderRadius: "8px",
-            }}
-          >
-            <strong>Aktivt filter:</strong>
-            <br />
-            {getCategoryLabel(categoryFilter)} + {getOwnerLabel(ownerFilter)}
-          </div>
-        )}
 
-        <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <option value="alla">Alla kategorier</option>
-          <option value="skräp">🗑️ Skräp</option>
-          <option value="trasigt">🔧 Trasigt</option>
-          <option value="belysning">💡 Belysning</option>
-          <option value="övrigt">📦 Övrigt</option>
-        </select>
+      {/* 🔹 NY komponent istället för inline UI */}
+      <MapFilters
+        categoryFilter={categoryFilter}
+        ownerFilter={ownerFilter}
+        setCategoryFilter={setCategoryFilter}
+        setOwnerFilter={setOwnerFilter}
+        onReset={handleResetFilters}
+      />
 
-        <select
-          value={ownerFilter}
-          onChange={(e) => setOwnerFilter(e.target.value as OwnerFilter)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            borderRadius: "8px",
-          }}
-        >
-          <option value="alla">Alla rapporter</option>
-          <option value="mina">👤 Mina</option>
-          <option value="andras">🌍 Andras</option>
-        </select>
-
-        <button
-          onClick={handleResetFilters}
-          style={{
-            padding: "10px",
-            border: "none",
-            borderRadius: "8px",
-            background: "#e5e7eb",
-            cursor: "pointer",
-          }}
-        >
-          Återställ filter
-        </button>
-      </div>
-
+      {/* 🔹 Tom-state */}
       {filteredPins.length === 0 && (
         <div
           style={{
