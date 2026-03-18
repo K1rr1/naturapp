@@ -65,6 +65,71 @@ const { handleAddPin, handleCleanPin } = usePins({
     setCategoryFilter("alla");
     setOwnerFilter("alla");
   };
+  const handleResetFilters = () => { 
+    setCategoryFilter("alla");
+    setOwnerFilter("alla");
+  }
+  const getMarkerColor = (category: PinCategory) => {
+    switch (category) {
+      case "skräp":
+        return "red";
+      case "trasigt":
+        return "orange";
+      case "belysning":
+        return "yellow";
+      case "övrigt":
+        return "blue";
+      default:
+        return "gray";
+    }
+  };
+
+   const getCategoryLabel = (category: CategoryFilter) => {
+    switch (category) {
+      case "alla":
+        return "Alla kategorier";
+      case "skräp":
+        return "🗑️ Skräp";
+      case "trasigt":
+        return "🔧 Trasigt";
+      case "belysning":
+        return "💡 Belysning";
+      case "övrigt":
+        return "📦 Övrigt";
+      default:
+        return "Alla kategorier";
+    }
+  };
+
+   const getOwnerLabel = (owner: OwnerFilter) => {
+    switch (owner) {
+      case "alla":
+        return "Alla användare";
+      case "mina":
+        return "Mina pins";
+      case "andras":
+        return "Andras pins";
+      default:
+        return "Alla användare";
+    }
+  };
+
+
+  const filteredPins = pins.filter((pin) => {
+    const matchesCategory =
+      categoryFilter === "alla" || pin.category === categoryFilter;
+
+    const matchesOwner =
+      ownerFilter === "alla" ||
+       (ownerFilter === "mina" && pin.createdBy === currentUserName) ||
+       (ownerFilter === "andras" && pin.createdBy !== currentUserName);
+
+    return matchesCategory && matchesOwner;
+  });
+
+  const hasActiveFilters= 
+  categoryFilter !== "alla" || 
+  ownerFilter !== "alla";
 
 
 
