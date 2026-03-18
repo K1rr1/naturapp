@@ -1,31 +1,25 @@
 import { useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  
-  useMapEvents,} from "react-leaflet";
+import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 
+import MapFilters from "./MapFilters";
+import MapPins from "./MapPins";
+import AddPinForm from "./AddPinForm";
 
 import type {
   Pin,
   PinCategory,
   CategoryFilter,
-  OwnerFilter,} from "../../features/pins/pins.types";
+  OwnerFilter,
+} from "../../features/pins/pins.types";
 
-
-import MapFilters from "./MapFilters";
-import MapPins from "./MapPins";
-import AddPinForm from "./AddPinForm";
 import { usePins } from "../../features/pins/usePins";
-import { useFilters } from "../../features/pins/useFilters.ts";
-
+import { useFilters } from "../../features/pins/useFilters";
 
 type MapViewProps = {
   currentUserName: string;
   pins: Pin[];
-  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;};
-
-
+  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
+};
 
 export default function MapView({
   currentUserName,
@@ -49,96 +43,28 @@ export default function MapView({
     return null;
   }
 
-const { handleAddPin, handleCleanPin } = usePins({
-  currentUserName,
-  pendingPosition,
-  textInput,
-  selectedCategory,
-  setPins,
-  setPendingPosition,
-  setTextInput,
-  setSelectedCategory,
-});
+  const { handleAddPin, handleCleanPin } = usePins({
+    currentUserName,
+    pendingPosition,
+    textInput,
+    selectedCategory,
+    setPins,
+    setPendingPosition,
+    setTextInput,
+    setSelectedCategory,
+  });
 
+  const { filteredPins } = useFilters({
+    pins,
+    categoryFilter,
+    ownerFilter,
+    currentUserName,
+  });
 
   const handleResetFilters = () => {
     setCategoryFilter("alla");
     setOwnerFilter("alla");
   };
-  const handleResetFilters = () => { 
-    setCategoryFilter("alla");
-    setOwnerFilter("alla");
-  }
-  const getMarkerColor = (category: PinCategory) => {
-    switch (category) {
-      case "skräp":
-        return "red";
-      case "trasigt":
-        return "orange";
-      case "belysning":
-        return "yellow";
-      case "övrigt":
-        return "blue";
-      default:
-        return "gray";
-    }
-  };
-
-   const getCategoryLabel = (category: CategoryFilter) => {
-    switch (category) {
-      case "alla":
-        return "Alla kategorier";
-      case "skräp":
-        return "🗑️ Skräp";
-      case "trasigt":
-        return "🔧 Trasigt";
-      case "belysning":
-        return "💡 Belysning";
-      case "övrigt":
-        return "📦 Övrigt";
-      default:
-        return "Alla kategorier";
-    }
-  };
-
-   const getOwnerLabel = (owner: OwnerFilter) => {
-    switch (owner) {
-      case "alla":
-        return "Alla användare";
-      case "mina":
-        return "Mina pins";
-      case "andras":
-        return "Andras pins";
-      default:
-        return "Alla användare";
-    }
-  };
-
-
-  const filteredPins = pins.filter((pin) => {
-    const matchesCategory =
-      categoryFilter === "alla" || pin.category === categoryFilter;
-
-    const matchesOwner =
-      ownerFilter === "alla" ||
-       (ownerFilter === "mina" && pin.createdBy === currentUserName) ||
-       (ownerFilter === "andras" && pin.createdBy !== currentUserName);
-
-    return matchesCategory && matchesOwner;
-  });
-
-  const hasActiveFilters= 
-  categoryFilter !== "alla" || 
-  ownerFilter !== "alla";
-
-
-
-  const { filteredPins } = useFilters({
-  pins,
-  categoryFilter,
-  ownerFilter,
-  currentUserName,
-});
 
   return (
     <div style={{ height: "100vh", width: "100%", position: "relative" }}>
@@ -154,12 +80,12 @@ const { handleAddPin, handleCleanPin } = usePins({
 
         <AddMarkerOnClick />
 
-        {/* 🔹 Rendera pins */}
         <MapPins
           pins={filteredPins}
           currentUserName={currentUserName}
           onCleanPin={handleCleanPin}
         />
+
         {pendingPosition && (
           <AddPinForm
             pendingPosition={pendingPosition}
@@ -170,10 +96,8 @@ const { handleAddPin, handleCleanPin } = usePins({
             onAddPin={handleAddPin}
           />
         )}
-
       </MapContainer>
 
-      {/* 🔹 NY komponent istället för inline UI */}
       <MapFilters
         categoryFilter={categoryFilter}
         ownerFilter={ownerFilter}
@@ -182,7 +106,6 @@ const { handleAddPin, handleCleanPin } = usePins({
         onReset={handleResetFilters}
       />
 
-      {/* 🔹 Tom-state */}
       {filteredPins.length === 0 && (
         <div
           style={{
