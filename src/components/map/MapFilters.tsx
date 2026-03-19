@@ -1,5 +1,7 @@
-type CategoryFilter = "alla" | "skräp" | "trasigt" | "belysning" | "övrigt";
-type OwnerFilter = "alla" | "mina" | "andras";
+import type {
+  CategoryFilter,
+  OwnerFilter,
+} from "../../features/pins/pins.types";
 
 type Props = {
   categoryFilter: CategoryFilter;
@@ -20,58 +22,52 @@ export default function MapFilters({
     categoryFilter !== "alla" || ownerFilter !== "alla";
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "12px",
-        left: "12px",
-        right: "70px",
-        zIndex: 1000,
-        background: "white",
-        padding: "12px",
-        borderRadius: "14px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-      }}
-    >
-      <strong style={{ fontSize: "15px" }}>Filter</strong>
+    <div className="absolute top-3 left-3 right-20 z-1000 rounded-3xl bg-white/95 shadow-xl border border-black/5 p-4 backdrop-blur-sm">
+      <div className="mb-3">
+        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700 mb-1">
+          Karta
+        </p>
+        <h2 className="text-base font-semibold text-stone-900">Filter</h2>
+      </div>
 
       {hasActiveFilters && (
-        <div
-          style={{
-            fontSize: "13px",
-            padding: "8px",
-            background: "#f3f4f6",
-            borderRadius: "8px",
-          }}
-        >
-          Aktivt filter
+        <div className="mb-3 rounded-2xl bg-green-50 px-3 py-2">
+          <p className="text-xs font-medium text-green-800">
+            Filter är aktiva
+          </p>
         </div>
       )}
 
-      <select
-        value={categoryFilter}
-        onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}
-      >
-        <option value="alla">Alla kategorier</option>
-        <option value="skräp">🗑️ Skräp</option>
-        <option value="trasigt">🔧 Trasigt</option>
-        <option value="belysning">💡 Belysning</option>
-        <option value="övrigt">📦 Övrigt</option>
-      </select>
+      <div className="space-y-3">
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value as CategoryFilter)}
+          className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-green-600 focus:bg-white"
+        >
+          <option value="alla">Alla kategorier</option>
+          <option value="skräp">🗑️ Skräp</option>
+          <option value="trasigt">🔧 Trasigt</option>
+          <option value="belysning">💡 Belysning</option>
+          <option value="övrigt">📦 Övrigt</option>
+        </select>
 
-      <select
-        value={ownerFilter}
-        onChange={(e) => setOwnerFilter(e.target.value as OwnerFilter)}
-      >
-        <option value="alla">Alla rapporter</option>
-        <option value="mina">👤 Mina</option>
-        <option value="andras">🌍 Andras</option>
-      </select>
+        <select
+          value={ownerFilter}
+          onChange={(e) => setOwnerFilter(e.target.value as OwnerFilter)}
+          className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-green-600 focus:bg-white"
+        >
+          <option value="alla">Alla rapporter</option>
+          <option value="mina">👤 Mina</option>
+          <option value="andras">🌍 Andras</option>
+        </select>
 
-      <button onClick={onReset}>Återställ filter</button>
+        <button
+          onClick={onReset}
+          className="w-full rounded-2xl bg-stone-200 text-stone-800 py-3 text-sm font-medium transition hover:bg-stone-300"
+        >
+          Återställ filter
+        </button>
+      </div>
     </div>
   );
 }

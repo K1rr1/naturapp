@@ -3,25 +3,22 @@ type ProfileButtonProps = {
   onOpenProfile: () => void;
 };
 
-export default function ProfileButton({ name, onOpenProfile }: ProfileButtonProps) {
+export default function ProfileButton({
+  name,
+  onOpenProfile,
+}: ProfileButtonProps) {
   return (
     <button
       onClick={onOpenProfile}
-      style={{
-        position: "absolute",
-        top: "12px",
-        right: "12px",
-        padding: "8px 12px",
-        borderRadius: "20px",
-        border: "none",
-        background: "white",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-        zIndex: 1000,
-        cursor: "pointer",
-      }}
+      className="absolute top-3 right-3 z-1100 flex items-center gap-2 rounded-full border border-black/5 bg-white/95 px-3 py-2 shadow-lg backdrop-blur-sm transition hover:bg-white"
     >
-      👤 {name}
+      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm">
+        👤
+      </span>
+
+      <span className="max-w-22.5 truncate text-sm font-medium text-stone-800">
+        {name}
+      </span>
     </button>
   );
 }
-

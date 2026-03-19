@@ -18,36 +18,45 @@ export default function ProfilePanel({
   const userPins = pins.filter((pin) => pin.createdBy === name);
 
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: "60px",
-        right: "12px",
-        width: "240px",
-        background: "white",
-        padding: "16px",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
-        zIndex: 1000,
-      }}
-    >
-      <h3 style={{ marginTop: 0 }}>Profil</h3>
+    <div className="absolute top-16 right-3 z-1100 w-64 rounded-3xl border border-black/5 bg-white/95 p-5 shadow-2xl backdrop-blur-sm">
+      <div className="mb-4">
+        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
+          Profil
+        </p>
 
-      <p>
-        <strong>Namn:</strong> {name}
-      </p>
+        <h3 className="text-lg font-semibold text-stone-900">{name}</h3>
+      </div>
 
-      <p>
-        <strong>Typ:</strong> {mode === "guest" ? "Gäst" : "Användare"}
-      </p>
+      <div className="mb-5 space-y-3">
+        <div className="rounded-2xl bg-stone-50 px-4 py-3">
+          <p className="text-xs text-stone-500">Typ</p>
+          <p className="text-sm font-medium text-stone-900">
+            {mode === "guest" ? "Gäst" : "Användare"}
+          </p>
+        </div>
 
-      <p>
-        <strong>Rapporter skapade:</strong> {userPins.length}
-      </p>
+        <div className="rounded-2xl bg-stone-50 px-4 py-3">
+          <p className="text-xs text-stone-500">Rapporter skapade</p>
+          <p className="text-sm font-medium text-stone-900">
+            {userPins.length}
+          </p>
+        </div>
+      </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-        <button onClick={onClose}>Stäng</button>
-        <button onClick={onLogout}>Logga ut</button>
+      <div className="flex flex-col gap-3">
+        <button
+          onClick={onClose}
+          className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
+        >
+          Stäng
+        </button>
+
+        <button
+          onClick={onLogout}
+          className="w-full rounded-2xl bg-red-500 py-3 text-sm font-medium text-white transition hover:bg-red-600"
+        >
+          Logga ut
+        </button>
       </div>
     </div>
   );
