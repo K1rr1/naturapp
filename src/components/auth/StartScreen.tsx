@@ -12,47 +12,52 @@ export default function StartScreen({
   onContinueAsGuest,
 }: StartScreenProps) {
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "16px",
-        backgroundColor: "#f3f4f6",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "360px",
-          backgroundColor: "white",
-          padding: "20px",
-          borderRadius: "16px",
-          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-        }}
-      >
-        <h1 style={{ marginTop: 0, marginBottom: "8px" }}>Naturappen</h1>
-        <p style={{ marginTop: 0, marginBottom: "16px" }}>
-          Logga in eller fortsätt som gäst
-        </p>
+    <div className="min-h-screen bg-linear-to-b from-green-50 to-stone-100 flex items-center justify-center px-4">
+      <div className="w-full max-w-sm rounded-3xl bg-white/95 shadow-2xl border border-black/5 p-6">
+        <div className="mb-6">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-green-700 mb-2">
+            Naturappen
+          </p>
 
-        <input
-          type="text"
-          placeholder="Skriv ditt namn"
-          value={nameInput}
-          onChange={(e) => onNameChange(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "10px",
-            marginBottom: "12px",
-            boxSizing: "border-box",
-          }}
-        />
+          <h1 className="text-3xl font-bold leading-tight text-stone-900 mb-3">
+            Hjälp till att hålla naturen ren
+          </h1>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-          <button onClick={onLogin}>Logga in</button>
-          <button onClick={onContinueAsGuest}>Fortsätt som gäst</button>
+          <p className="text-sm text-stone-600 leading-6">
+            Rapportera skräp, trasiga saker och problem direkt på kartan.
+            Logga in med namn eller fortsätt som gäst.
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <input
+            type="text"
+            placeholder="Skriv ditt namn"
+            value={nameInput}
+            onChange={(e) => onNameChange(e.target.value)}
+            className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:bg-white"
+          />
+
+          <button
+            onClick={onLogin}
+            className="w-full rounded-2xl bg-green-700 text-white py-3 font-medium shadow-sm transition hover:bg-green-800"
+          >
+            Logga in
+          </button>
+
+          <button
+            onClick={onContinueAsGuest}
+            className="w-full rounded-2xl bg-stone-200 text-stone-800 py-3 font-medium transition hover:bg-stone-300"
+          >
+            Fortsätt som gäst
+          </button>
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-green-50 px-4 py-3">
+          <p className="text-xs text-green-800 leading-5">
+            Tips: gästläge är bra för att snabbt testa kartan. Inloggat läge gör
+            det lättare att följa dina egna rapporter senare.
+          </p>
         </div>
       </div>
     </div>
