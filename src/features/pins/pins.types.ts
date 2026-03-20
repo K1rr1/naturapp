@@ -1,11 +1,18 @@
-export type PinCategory = "skräp" | "farligt avfall" | "naturvård" | "annat";
+export type PinCategory =
+  | "skräp"
+  | "trasigt"
+  | "belysning"
+  | "övrigt";
 
-export interface Pin {
+export type CategoryFilter = "alla" | PinCategory;
+
+export type OwnerFilter = "alla" | "mina" | "andras";
+
+export type Pin = {
   id: number;
   lat: number;
   lng: number;
   text: string;
   category: PinCategory;
-  createdAt?: string;
-  createdBy?: string;
+  createdBy: string;
 };
