@@ -1,21 +1,26 @@
 import type {
   CategoryFilter,
   OwnerFilter,
+  EventFilter,
 } from "../../features/pins/pins.types";
 
 type Props = {
   categoryFilter: CategoryFilter;
   ownerFilter: OwnerFilter;
+  eventFilter: EventFilter;
   setCategoryFilter: (value: CategoryFilter) => void;
   setOwnerFilter: (value: OwnerFilter) => void;
+  setEventFilter: (value: EventFilter) => void;
   onReset: () => void;
 };
 
 export default function MapFilters({
   categoryFilter,
   ownerFilter,
+  eventFilter,
   setCategoryFilter,
   setOwnerFilter,
+  setEventFilter,
   onReset,
 }: Props) {
   const hasActiveFilters =
@@ -50,6 +55,16 @@ export default function MapFilters({
           <option value="belysning">💡 Belysning</option>
           <option value="övrigt">📦 Övrigt</option>
         </select>
+
+        <select
+          value={eventFilter}
+          onChange={(e) => setEventFilter(e.target.value as EventFilter)}
+          className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-green-600 focus:bg-white"
+        >
+          <option value="alla">Alla</option>
+          <option value="medEvent">📅 Endast event</option>
+        </select>
+
 
         <select
           value={ownerFilter}
