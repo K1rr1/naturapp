@@ -16,48 +16,139 @@ export default function ProfilePanel({
   onLogout,
 }: ProfilePanelProps) {
   const userPins = pins.filter((pin) => pin.createdBy === name);
+  const pinsWithEvents = pins.filter((pin) => pin.cleanupEvent);
+
+  const sortedEvents = [...pinsWithEvents].sort((a, b) => {
+    if (!a.cleanupEvent || !b.cleanupEvent) return 0;
+
+    const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
+    const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+
+    return aDate.getTime() - bDate.getTime();
+  });
+
+  const nextEvent = sortedEvents[0];
 
   return (
-    <div className="absolute top-16 right-3 z-1100 w-64 rounded-3xl border border-black/5 bg-white/95 p-5 shadow-2xl backdrop-blur-sm">
-      <div className="mb-4">
-        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
-          Profil
-        </p>
+    <>
+      <div
+        className="fixed inset-0 z-[1090] bg-black/25 backdrop-blur-[2px]"
+        onClick={onClose}
+      />
 
-        <h3 className="text-lg font-semibold text-stone-900">{name}</h3>
-      </div>
+      <div className="fixed inset-3 z-[1100] overflow-y-auto rounded-[2rem] border border-black/5 bg-stone-100 shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-stone-100/95 px-5 py-4 backdrop-blur-sm">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
+              Profil
+            </p>
+            <h2 className="text-lg font-semibold text-stone-900">
+              {name}
+            </h2>
+          </div>
 
-      <div className="mb-5 space-y-3">
-        <div className="rounded-2xl bg-stone-50 px-4 py-3">
-          <p className="text-xs text-stone-500">Typ</p>
-          <p className="text-sm font-medium text-stone-900">
-            {mode === "guest" ? "Gäst" : "Användare"}
-          </p>
+          <button
+            onClick={onClose}
+            className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-stone-700 shadow"
+          >
+            ✕
+          </button>
         </div>
 
-        <div className="rounded-2xl bg-stone-50 px-4 py-3">
-          <p className="text-xs text-stone-500">Rapporter skapade</p>
-          <p className="text-sm font-medium text-stone-900">
-            {userPins.length}
-          </p>
+        <div className="px-5 py-5 space-y-5">
+          <div className="rounded-[2rem] bg-white p-5 text-center shadow-sm">
+            <div className="mx-auto mb-3 flex h-24 w-24 items-center justify-center rounded-full border-4 border-green-700 bg-orange-100 text-4xl shadow-sm">
+              👤
+            </div>
+
+            <div className="mb-2 inline-flex rounded-full bg-amber-700 px-3 py-1 text-xs font-semibold text-white">
+              {mode === "guest" ? "Gästläge" : "Naturväktare"}
+            </div>
+
+            <h3 className="text-2xl font-bold text-green-800">{name}</h3>
+
+            <p className="mt-1 text-sm text-stone-500">
+              {mode === "guest" ? "Utforskar appen som gäst" : "Aktiv användare"}
+            </p>
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Statistik
+            </h4>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-2xl bg-stone-50 p-4">
+                <p className="text-xs text-stone-500">Egna rapporter</p>
+                <p className="mt-1 text-xl font-bold text-stone-900">
+                  {userPins.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-stone-50 p-4">
+                <p className="text-xs text-stone-500">Pins med event</p>
+                <p className="mt-1 text-xl font-bold text-stone-900">
+                  {pinsWithEvents.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Nästa event
+            </h4>
+
+            {nextEvent && nextEvent.cleanupEvent ? (
+              <div className="rounded-2xl bg-green-50 p-4">
+                <p className="text-sm font-semibold text-stone-900">
+                  {nextEvent.text}
+                </p>
+
+                <p className="mt-1 text-sm text-stone-600">
+                  {nextEvent.cleanupEvent.date} • {nextEvent.cleanupEvent.time}
+                </p>
+
+                <p className="mt-1 text-sm text-stone-600">
+                  Skapad av: {nextEvent.createdBy}
+                </p>
+
+                {nextEvent.cleanupEvent.note && (
+                  <p className="mt-2 text-sm text-stone-800">
+                    {nextEvent.cleanupEvent.note}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+                Inga kommande event ännu.
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Konto
+            </h4>
+
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={onClose}
+                className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
+              >
+                Tillbaka till kartan
+              </button>
+
+              <button
+                onClick={onLogout}
+                className="w-full rounded-2xl bg-red-500 py-3 text-sm font-medium text-white transition hover:bg-red-600"
+              >
+                Logga ut
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-
-      <div className="flex flex-col gap-3">
-        <button
-          onClick={onClose}
-          className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
-        >
-          Stäng
-        </button>
-
-        <button
-          onClick={onLogout}
-          className="w-full rounded-2xl bg-red-500 py-3 text-sm font-medium text-white transition hover:bg-red-600"
-        >
-          Logga ut
-        </button>
-      </div>
-    </div>
+    </>
   );
 }
