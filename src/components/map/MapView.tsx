@@ -10,6 +10,7 @@ import type {
   PinCategory,
   CategoryFilter,
   OwnerFilter,
+  EventFilter,
 } from "../../features/pins/pins.types";
 
 import { usePins } from "../../features/pins/usePins";
@@ -32,6 +33,7 @@ export default function MapView({
 
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alla");
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>("alla");
+  const [eventFilter, setEventFilter] = useState<EventFilter>("alla");
 
   function AddMarkerOnClick() {
     useMapEvents({
@@ -43,7 +45,8 @@ export default function MapView({
     return null;
   }
 
-  const {  handleAddPin,
+  const { 
+  handleAddPin,
   handleCleanPin,
   handleCreateEvent,
   handleRemoveEvent,} = usePins({
@@ -64,12 +67,16 @@ export default function MapView({
     categoryFilter,
     ownerFilter,
     currentUserName,
+    eventFilter,
   });
 
   const handleResetFilters = () => {
     setCategoryFilter("alla");
     setOwnerFilter("alla");
+    setEventFilter("alla");
   };
+
+
 
   return (
     <div style={{ height: "100vh", width: "100%", position: "relative" }}>
@@ -111,6 +118,8 @@ export default function MapView({
         setCategoryFilter={setCategoryFilter}
         setOwnerFilter={setOwnerFilter}
         onReset={handleResetFilters}
+        eventFilter={eventFilter}
+        setEventFilter={setEventFilter}
       />
 
       {filteredPins.length === 0 && (
