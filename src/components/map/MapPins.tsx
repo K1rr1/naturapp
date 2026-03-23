@@ -1,17 +1,28 @@
+import { useState } from "react";
 import { CircleMarker, Popup } from "react-leaflet";
-import type { Pin, PinCategory } from "../../features/pins/pins.types";
+import type { Pin, PinCategory, CleanupEvent } from "../../features/pins/pins.types";
+import PinEventForm from "./PinEventForm";
 
 type Props = {
   pins: Pin[];
   currentUserName: string;
   onCleanPin: (id: number) => void;
+  onCreateEvent: (pinId: number, cleanupEvent: CleanupEvent) => void;
+  onRemoveEvent: (pinId: number) => void;
 };
 
 export default function MapPins({
   pins,
   currentUserName,
   onCleanPin,
+  onCreateEvent,
+  onRemoveEvent,
 }: Props) {
+  const [eventPinId, setEventPinId] = useState<number | null>(null);
+  const [dateInput, setDateInput] = useState("");
+  const [timeInput, setTimeInput] = useState("");
+  const [noteInput, setNoteInput] = useState("");
+
   const getMarkerColor = (category: PinCategory) => {
     switch (category) {
       case "skräp":
@@ -27,11 +38,31 @@ export default function MapPins({
     }
   };
 
+  const resetEventForm = () => {
+    setEventPinId(null);
+    setDateInput("");
+    setTimeInput("");
+    setNoteInput("");
+  };
+
+  const handleSaveEvent = (pinId: number) => {
+    if (!dateInput || !timeInput) return;
+
+    onCreateEvent(pinId, {
+      date: dateInput,
+      time: timeInput,
+      note: noteInput,
+    });
+
+    resetEventForm();
+  };
+
   return (
     <>
       {pins.map((pin) => {
         const isOwner = pin.createdBy === currentUserName;
         const markerColor = getMarkerColor(pin.category);
+        const isEditingEvent = eventPinId === pin.id;
 
         return (
           <CircleMarker
@@ -45,33 +76,92 @@ export default function MapPins({
             }}
           >
             <Popup>
-              <div>
-                <strong>Kategori:</strong> {pin.category}
-                <br />
-                <strong>Beskrivning:</strong> {pin.text}
-                <br />
-                <strong>Rapporterad av:</strong> {pin.createdBy}
-                <br />
-                <br />
+              <div className="min-w-240px space-y-3">
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
+                    Rapport
+                  </p>
+                  <h4 className="text-base font-semibold text-stone-900">
+                    {pin.category}
+                  </h4>
+                </div>
+
+                <div className="space-y-1 text-sm text-stone-800">
+                  <p>
+                    <span className="font-medium">Beskrivning:</span> {pin.text}
+                  </p>
+                  <p>
+                    <span className="font-medium">Rapporterad av:</span>{" "}
+                    {pin.createdBy}
+                  </p>
+                </div>
+
+                {pin.cleanupEvent && (
+                  <div className="rounded-2xl bg-green-50 p-3">
+                    <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
+                      Städevent
+                    </p>
+                    <p className="text-sm text-stone-900">
+                      <span className="font-medium">Datum:</span>{" "}
+                      {pin.cleanupEvent.date}
+                    </p>
+                    <p className="text-sm text-stone-900">
+                      <span className="font-medium">Tid:</span>{" "}
+                      {pin.cleanupEvent.time}
+                    </p>
+                    {pin.cleanupEvent.note && (
+                      <p className="text-sm text-stone-900">
+                        <span className="font-medium">Info:</span>{" "}
+                        {pin.cleanupEvent.note}
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 {isOwner ? (
-                  <button
-                    onClick={() => onCleanPin(pin.id)}
-                    style={{
-                      padding: "6px 10px",
-                      background: "#2e7d32",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "6px",
-                      cursor: "pointer",
-                    }}
-                  >
-                    Städat
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => onCleanPin(pin.id)}
+                      className="w-full rounded-2xl bg-green-700 py-3 text-sm font-medium text-white transition hover:bg-green-800"
+                    >
+                      Städat
+                    </button>
+
+                    {!pin.cleanupEvent && !isEditingEvent && (
+                      <button
+                        onClick={() => setEventPinId(pin.id)}
+                        className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
+                      >
+                        Skapa event
+                      </button>
+                    )}
+
+                    {pin.cleanupEvent && (
+                      <button
+                        onClick={() => onRemoveEvent(pin.id)}
+                        className="w-full rounded-2xl bg-red-500 py-3 text-sm font-medium text-white transition hover:bg-red-600"
+                      >
+                        Ta bort event
+                      </button>
+                    )}
+                  </div>
                 ) : (
-                  <p style={{ margin: 0, fontSize: "14px" }}>
-                    Bara skaparen kan markera denna som städad.
+                  <p className="text-sm text-amber-700">
+                    Bara skaparen kan markera denna som städad eller hantera event.
                   </p>
+                )}
+
+                {isOwner && isEditingEvent && (
+                  <PinEventForm
+                    dateInput={dateInput}
+                    timeInput={timeInput}
+                    noteInput={noteInput}
+                    onDateChange={setDateInput}
+                    onTimeChange={setTimeInput}
+                    onNoteChange={setNoteInput}
+                    onSave={() => handleSaveEvent(pin.id)}
+                    onCancel={resetEventForm}
+                  />
                 )}
               </div>
             </Popup>

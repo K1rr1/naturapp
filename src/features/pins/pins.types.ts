@@ -1,12 +1,14 @@
-export type PinCategory =
-  | "skräp"
-  | "trasigt"
-  | "belysning"
-  | "övrigt";
+export type PinCategory = "skräp" | "trasigt" | "belysning" | "övrigt";
 
 export type CategoryFilter = "alla" | PinCategory;
 
 export type OwnerFilter = "alla" | "mina" | "andras";
+
+export type CleanupEvent = {
+  date: string;
+  time: string;
+  note: string;
+};
 
 export type Pin = {
   id: number;
@@ -15,4 +17,5 @@ export type Pin = {
   text: string;
   category: PinCategory;
   createdBy: string;
+  cleanupEvent?: CleanupEvent;
 };
