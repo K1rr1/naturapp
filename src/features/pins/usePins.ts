@@ -44,20 +44,25 @@ export function usePins({
     setPins((prev) => prev.filter((pin) => pin.id !== id));
   };
 
-  const handleCreateEvent = (pinId: number, cleanupEvent: CleanupEvent) => {
-    setPins((prev) =>
-      prev.map((pin) =>
-        pin.id === pinId
-          ? {
-              ...pin,
-              cleanupEvent,
-            }
-          : pin
-      )
-    );
-  };
-
-  const handleRemoveEvent = (pinId: number) => {
+const handleCreateEvent = (
+  pinId: number,
+  cleanupEvent: Omit<CleanupEvent, "participants">
+) => {
+  setPins((prev) =>
+    prev.map((pin) =>
+      pin.id === pinId
+        ? {
+            ...pin,
+            cleanupEvent: {
+              ...cleanupEvent,
+              participants: [],
+            },
+          }
+        : pin
+    )
+  );
+};
+const handleRemoveEvent = (pinId: number) => {
     setPins((prev) =>
       prev.map((pin) =>
         pin.id === pinId
@@ -70,10 +75,50 @@ export function usePins({
     );
   };
 
+  const handleJoinEvent = (pinId: number) => {
+    setPins((prev) =>
+      prev.map((pin) => {
+        if (pin.id !== pinId || !pin.cleanupEvent) return pin;
+
+        const alreadyJoined = pin.cleanupEvent.participants.includes(currentUserName);
+
+        if (alreadyJoined) return pin;
+
+        return {
+          ...pin,
+          cleanupEvent: {
+            ...pin.cleanupEvent,
+            participants: [...pin.cleanupEvent.participants, currentUserName],
+          },
+        };
+      })
+    );
+  };
+
+  const handleLeaveEvent = (pinId: number) => {
+    setPins((prev) =>
+      prev.map((pin) => {
+        if (pin.id !== pinId || !pin.cleanupEvent) return pin;
+
+        return {
+          ...pin,
+          cleanupEvent: {
+            ...pin.cleanupEvent,
+            participants: pin.cleanupEvent.participants.filter(
+              (participant) => participant !== currentUserName
+            ),
+          },
+        };
+      })
+    );
+  };
+
   return {
     handleAddPin,
     handleCleanPin,
     handleCreateEvent,
     handleRemoveEvent,
+    handleJoinEvent,
+    handleLeaveEvent,
   };
 }
