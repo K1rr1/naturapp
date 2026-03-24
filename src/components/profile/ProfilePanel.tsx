@@ -16,18 +16,32 @@ export default function ProfilePanel({
   onLogout,
 }: ProfilePanelProps) {
   const userPins = pins.filter((pin) => pin.createdBy === name);
-  const pinsWithEvents = pins.filter((pin) => pin.cleanupEvent);
 
-  const sortedEvents = [...pinsWithEvents].sort((a, b) => {
-    if (!a.cleanupEvent || !b.cleanupEvent) return 0;
+  const userPinsWithEvents = userPins.filter((pin) => pin.cleanupEvent);
 
-    const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
-    const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+  const sortedEvents = [...pins]
+    .filter((pin) => pin.cleanupEvent)
+    .sort((a, b) => {
+      if (!a.cleanupEvent || !b.cleanupEvent) return 0;
 
-    return aDate.getTime() - bDate.getTime();
-  });
+      const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
+      const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+
+      return aDate.getTime() - bDate.getTime();
+    });
 
   const nextEvent = sortedEvents[0];
+
+  const sortedUserPins = [...userPins].sort((a, b) => b.id - a.id);
+  const latestUserPins = sortedUserPins.slice(0, 3);
+
+  const categoryCounts = userPins.reduce<Record<string, number>>((acc, pin) => {
+    acc[pin.category] = (acc[pin.category] || 0) + 1;
+    return acc;
+  }, {});
+
+  const favoriteCategory =
+    Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Ingen ännu";
 
   return (
     <>
@@ -42,9 +56,7 @@ export default function ProfilePanel({
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
               Profil
             </p>
-            <h2 className="text-lg font-semibold text-stone-900">
-              {name}
-            </h2>
+            <h2 className="text-lg font-semibold text-stone-900">{name}</h2>
           </div>
 
           <button
@@ -55,7 +67,7 @@ export default function ProfilePanel({
           </button>
         </div>
 
-        <div className="px-5 py-5 space-y-5">
+        <div className="space-y-5 px-5 py-5">
           <div className="rounded-[2rem] bg-white p-5 text-center shadow-sm">
             <div className="mx-auto mb-3 flex h-24 w-24 items-center justify-center rounded-full border-4 border-green-700 bg-orange-100 text-4xl shadow-sm">
               👤
@@ -68,7 +80,7 @@ export default function ProfilePanel({
             <h3 className="text-2xl font-bold text-green-800">{name}</h3>
 
             <p className="mt-1 text-sm text-stone-500">
-              {mode === "guest" ? "Utforskar appen som gäst" : "Aktiv användare"}
+              {mode === "guest" ? "Utforskar appen som gäst" : "Aktiv användare i naturappen"}
             </p>
           </div>
 
@@ -86,9 +98,23 @@ export default function ProfilePanel({
               </div>
 
               <div className="rounded-2xl bg-stone-50 p-4">
-                <p className="text-xs text-stone-500">Pins med event</p>
+                <p className="text-xs text-stone-500">Skapade event</p>
                 <p className="mt-1 text-xl font-bold text-stone-900">
-                  {pinsWithEvents.length}
+                  {userPinsWithEvents.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-stone-50 p-4">
+                <p className="text-xs text-stone-500">Favoritkategori</p>
+                <p className="mt-1 text-sm font-bold text-stone-900">
+                  {favoriteCategory}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-stone-50 p-4">
+                <p className="text-xs text-stone-500">Aktiva event</p>
+                <p className="mt-1 text-xl font-bold text-stone-900">
+                  {sortedEvents.length}
                 </p>
               </div>
             </div>
@@ -126,7 +152,40 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Senaste rapporter
+            </h4>
+
+            {latestUserPins.length > 0 ? (
+              <div className="space-y-3">
+                {latestUserPins.map((pin) => (
+                  <div
+                    key={pin.id}
+                    className="rounded-2xl bg-stone-50 p-4"
+                  >
+                    <p className="text-sm font-semibold text-stone-900">
+                      {pin.text}
+                    </p>
+                    <p className="mt-1 text-xs text-stone-500">
+                      Kategori: {pin.category}
+                    </p>
+                    {pin.cleanupEvent && (
+                      <p className="mt-1 text-xs text-green-700">
+                        Har event kopplat
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+                Du har inte skapat några rapporter ännu.
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Konto
             </h4>
