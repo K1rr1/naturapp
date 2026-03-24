@@ -19,20 +19,19 @@ export default function ProfilePanel({
 
   const userPinsWithEvents = userPins.filter((pin) => pin.cleanupEvent);
 
-  const sortedEvents = [...pins]
-    .filter((pin) => pin.cleanupEvent)
-    .sort((a, b) => {
-      if (!a.cleanupEvent || !b.cleanupEvent) return 0;
+  const pinsWithEvents = pins.filter((pin) => pin.cleanupEvent);
 
-      const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
-      const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+  const sortedEvents = [...pinsWithEvents].sort((a, b) => {
+    if (!a.cleanupEvent || !b.cleanupEvent) return 0;
 
-      return aDate.getTime() - bDate.getTime();
-    });
+    const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
+    const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+
+    return aDate.getTime() - bDate.getTime();
+  });
 
   const nextEvent = sortedEvents[0];
-  const eventsUserParticipatesIn = pins.filter(
-  (pin) => pin.cleanupEvent?.participants?.includes(name));
+
   const sortedUserPins = [...userPins].sort((a, b) => b.id - a.id);
   const latestUserPins = sortedUserPins.slice(0, 3);
 
@@ -44,14 +43,25 @@ export default function ProfilePanel({
   const favoriteCategory =
     Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Ingen ännu";
 
+  const eventsUserParticipatesIn = pins
+    .filter((pin) => pin.cleanupEvent?.participants?.includes(name))
+    .sort((a, b) => {
+      if (!a.cleanupEvent || !b.cleanupEvent) return 0;
+
+      const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
+      const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+
+      return aDate.getTime() - bDate.getTime();
+    });
+
   return (
     <>
       <div
-        className="fixed inset-0 z-1090 bg-black/25 backdrop-blur-[2px]"
+        className="fixed inset-0 z-[1090] bg-black/25 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      <div className="fixed inset-3 z-1100 overflow-y-auto rounded-4xl border border-black/5 bg-stone-100 shadow-2xl">
+      <div className="fixed inset-3 z-[1100] overflow-y-auto rounded-[2rem] border border-black/5 bg-stone-100 shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-stone-100/95 px-5 py-4 backdrop-blur-sm">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
@@ -104,12 +114,7 @@ export default function ProfilePanel({
                   {userPinsWithEvents.length}
                 </p>
               </div>
-              <div className="rounded-2xl bg-stone-50 p-4">
-                     <p className="text-xs text-stone-500">Deltar i event</p>
-                      <p className="mt-1 text-xl font-bold text-stone-900">
-                   {eventsUserParticipatesIn.length}
-                </p>
-                </div>
+
               <div className="rounded-2xl bg-stone-50 p-4">
                 <p className="text-xs text-stone-500">Favoritkategori</p>
                 <p className="mt-1 text-sm font-bold text-stone-900">
@@ -121,6 +126,13 @@ export default function ProfilePanel({
                 <p className="text-xs text-stone-500">Aktiva event</p>
                 <p className="mt-1 text-xl font-bold text-stone-900">
                   {sortedEvents.length}
+                </p>
+              </div>
+
+              <div className="rounded-2xl bg-stone-50 p-4 col-span-2">
+                <p className="text-xs text-stone-500">Deltar i event</p>
+                <p className="mt-1 text-xl font-bold text-stone-900">
+                  {eventsUserParticipatesIn.length}
                 </p>
               </div>
             </div>
@@ -154,6 +166,46 @@ export default function ProfilePanel({
             ) : (
               <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
                 Inga kommande event ännu.
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Event du deltar i
+            </h4>
+
+            {eventsUserParticipatesIn.length > 0 ? (
+              <div className="space-y-3">
+                {eventsUserParticipatesIn.map((pin) => (
+                  <div key={pin.id} className="rounded-2xl bg-stone-50 p-4">
+                    <p className="text-sm font-semibold text-stone-900">
+                      {pin.text}
+                    </p>
+
+                    {pin.cleanupEvent && (
+                      <>
+                        <p className="mt-1 text-xs text-stone-500">
+                          {pin.cleanupEvent.date} • {pin.cleanupEvent.time}
+                        </p>
+
+                        <p className="mt-1 text-xs text-stone-500">
+                          Skapad av: {pin.createdBy}
+                        </p>
+
+                        {pin.cleanupEvent.note && (
+                          <p className="mt-2 text-sm text-stone-700">
+                            {pin.cleanupEvent.note}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+                Du deltar inte i några event ännu.
               </div>
             )}
           </div>
