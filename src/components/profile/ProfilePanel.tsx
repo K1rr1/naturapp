@@ -35,13 +35,14 @@ export default function ProfilePanel({
   const sortedUserPins = [...userPins].sort((a, b) => b.id - a.id);
   const latestUserPins = sortedUserPins.slice(0, 3);
 
-  const categoryCounts = userPins.reduce<Record<string, number>>((acc, pin) => {
+  const categoryCounts = userPins.reduce<Record<string, number>>((acc, pin) =>
+     {
     acc[pin.category] = (acc[pin.category] || 0) + 1;
     return acc;
   }, {});
 
-  const favoriteCategory =
-    Object.entries(categoryCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || "Ingen ännu";
+  const favoriteCategory = Object.entries(categoryCounts)
+    .sort((a, b) => b[1] - a[1])[0]?.[0] || "Ingen ännu";
 
   const eventsUserParticipatesIn = pins
     .filter((pin) => pin.cleanupEvent?.participants?.includes(name))
@@ -53,6 +54,18 @@ export default function ProfilePanel({
 
       return aDate.getTime() - bDate.getTime();
     });
+
+     const createdEvents =  userPins
+    .filter((pin) => pin.cleanupEvent)
+    .sort((a, b) => {
+      if (!a.cleanupEvent || !b.cleanupEvent) return 0;
+
+      const aDate = new Date(`${a.cleanupEvent.date}T${a.cleanupEvent.time}`);
+      const bDate = new Date(`${b.cleanupEvent.date}T${b.cleanupEvent.time}`);
+
+      return aDate.getTime() - bDate.getTime();
+    });
+    
 
   return (
     <>
@@ -169,7 +182,45 @@ export default function ProfilePanel({
               </div>
             )}
           </div>
+            <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Mina skapade event
+            </h4>
 
+            {createdEvents.length > 0 ? (
+              <div className="space-y-3">
+                {createdEvents.map((pin) => (
+                  <div key={pin.id} className="rounded-2xl bg-stone-50 p-4">
+                    <p className="text-sm font-semibold text-stone-900">
+                      {pin.text}
+                    </p>
+
+                    {pin.cleanupEvent && (
+                      <>
+                        <p className="mt-1 text-xs text-stone-500">
+                          {pin.cleanupEvent.date} • {pin.cleanupEvent.time}
+                        </p>
+
+                        <p className="mt-1 text-xs text-stone-500">
+                          Deltagare: {pin.cleanupEvent.participants.length}
+                        </p>
+
+                        {pin.cleanupEvent.note && (
+                          <p className="mt-2 text-sm text-stone-700">
+                            {pin.cleanupEvent.note}
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+                Du har inte skapat några event ännu.
+              </div>
+            )}
+          </div>
           <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Event du deltar i
