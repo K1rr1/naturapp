@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { CircleMarker, Popup } from "react-leaflet";
-import type { Pin, PinCategory, CleanupEvent } from "../../features/pins/pins.types";
+import type {
+  Pin,
+  PinCategory,
+  CleanupEvent,
+} from "../../features/pins/pins.types";
 import PinEventForm from "./PinEventForm";
 
 type Props = {
   pins: Pin[];
   currentUserName: string;
   onCleanPin: (id: number) => void;
-  onCreateEvent: (pinId: number, cleanupEvent: CleanupEvent) => void;
+  onCreateEvent: (
+    pinId: number,
+    cleanupEvent: Omit<CleanupEvent, "participants">
+  ) => void;
   onRemoveEvent: (pinId: number) => void;
+  onJoinEvent: (pinId: number) => void;
+  onLeaveEvent: (pinId: number) => void;
 };
 
 export default function MapPins({
@@ -17,6 +26,8 @@ export default function MapPins({
   onCleanPin,
   onCreateEvent,
   onRemoveEvent,
+  onJoinEvent,
+  onLeaveEvent,
 }: Props) {
   const [eventPinId, setEventPinId] = useState<number | null>(null);
   const [dateInput, setDateInput] = useState("");
@@ -63,6 +74,9 @@ export default function MapPins({
         const isOwner = pin.createdBy === currentUserName;
         const markerColor = getMarkerColor(pin.category);
         const isEditingEvent = eventPinId === pin.id;
+        const hasEvent = !!pin.cleanupEvent;
+        const participants = pin.cleanupEvent?.participants || [];
+        const isParticipant = participants.includes(currentUserName);
 
         return (
           <CircleMarker
@@ -76,7 +90,7 @@ export default function MapPins({
             }}
           >
             <Popup>
-              <div className="min-w-240px space-y-3">
+              <div className="min-w-[240px] space-y-3">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
                     Rapport
@@ -115,6 +129,10 @@ export default function MapPins({
                         {pin.cleanupEvent.note}
                       </p>
                     )}
+                    <p className="mt-2 text-sm text-stone-900">
+                      <span className="font-medium">Deltagare:</span>{" "}
+                      {participants.length}
+                    </p>
                   </div>
                 )}
 
@@ -146,9 +164,30 @@ export default function MapPins({
                     )}
                   </div>
                 ) : (
-                  <p className="text-sm text-amber-700">
-                    Bara skaparen kan markera denna som städad eller hantera event.
-                  </p>
+                  <div className="space-y-2">
+                    <p className="text-sm text-amber-700">
+                      Bara skaparen kan markera denna som städad eller hantera
+                      event.
+                    </p>
+
+                    {pin.cleanupEvent && !isParticipant && (
+                      <button
+                        onClick={() => onJoinEvent(pin.id)}
+                        className="w-full rounded-2xl bg-blue-500 py-3 text-sm font-medium text-white transition hover:bg-blue-600"
+                      >
+                        Delta i event
+                      </button>
+                    )}
+
+                    {pin.cleanupEvent && isParticipant && (
+                      <button
+                        onClick={() => onLeaveEvent(pin.id)}
+                        className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
+                      >
+                        Lämna event
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {isOwner && isEditingEvent && (

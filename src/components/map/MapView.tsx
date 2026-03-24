@@ -45,20 +45,23 @@ export default function MapView({
     return null;
   }
 
-  const { 
+  const {
   handleAddPin,
   handleCleanPin,
   handleCreateEvent,
-  handleRemoveEvent,} = usePins({
-    currentUserName,
-    pendingPosition,
-    textInput,
-    selectedCategory,
-    setPins,
-    setPendingPosition,
-    setTextInput,
-    setSelectedCategory,
-  });
+  handleRemoveEvent,
+  handleJoinEvent,
+  handleLeaveEvent,
+} = usePins({
+  currentUserName,
+  pendingPosition,
+  textInput,
+  selectedCategory,
+  setPins,
+  setPendingPosition,
+  setTextInput,
+  setSelectedCategory,
+});
 
 
 
@@ -98,7 +101,9 @@ export default function MapView({
           onCleanPin={handleCleanPin}
           onCreateEvent={handleCreateEvent}
           onRemoveEvent={handleRemoveEvent}
-/>
+          onJoinEvent={handleJoinEvent}
+          onLeaveEvent={handleLeaveEvent}
+        />
 
         {pendingPosition && (
           <AddPinForm

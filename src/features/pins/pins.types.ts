@@ -10,6 +10,7 @@ export type CleanupEvent = {
   date: string;
   time: string;
   note: string;
+  participants: string[];
 };
 
 export type Pin = {

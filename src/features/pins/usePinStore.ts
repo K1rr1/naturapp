@@ -9,8 +9,22 @@ export function usePinStore() {
   useEffect(() => {
     const savedPins = loadPins();
 
-    if (savedPins.length > 0) {
-      setPins(savedPins);
+    const migratedPins = savedPins.map((pin) => {
+      if (pin.cleanupEvent && !pin.cleanupEvent.participants) {
+        return {
+          ...pin,
+          cleanupEvent: {
+            ...pin.cleanupEvent,
+            participants: [],
+          },
+        };
+      }
+
+      return pin;
+    });
+
+    if (migratedPins.length > 0) {
+      setPins(migratedPins);
     } else {
       const defaultPins: Pin[] = [
         {
@@ -29,11 +43,9 @@ export function usePinStore() {
     setHasLoadedPins(true);
   }, []);
 
-  // 🔹 spara automatiskt när pins ändras
   useEffect(() => {
-    if (hasLoadedPins) {
-      savePins(pins);
-    }
+    if (!hasLoadedPins) return;
+    savePins(pins);
   }, [pins, hasLoadedPins]);
 
   return {
@@ -42,14 +54,6 @@ export function usePinStore() {
     hasLoadedPins,
   };
 }
-
-
-
-
-
-
-
-
 
 
 
