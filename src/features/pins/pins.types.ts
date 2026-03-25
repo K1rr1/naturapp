@@ -4,7 +4,8 @@ export type CategoryFilter = "alla" | PinCategory;
 
 export type OwnerFilter = "alla" | "mina" | "andras";
 
-export type EventFilter = "alla" | "medEvent";
+export type EventFilter = "alla" | "medEvent" | "deltar";
+
 
 export type CleanupEvent = {
   date: string;

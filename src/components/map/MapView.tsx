@@ -37,6 +37,7 @@ export default function MapView({
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alla");
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>("alla");
   const [eventFilter, setEventFilter] = useState<EventFilter>("alla");
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [postPinPrompt, setPostPinPrompt] = useState<{
@@ -173,6 +174,8 @@ export default function MapView({
         categoryFilter={categoryFilter}
         ownerFilter={ownerFilter}
         eventFilter={eventFilter}
+        isOpen={filtersOpen}
+        onToggleOpen={() => setFiltersOpen((prev) => !prev)}
         setCategoryFilter={setCategoryFilter}
         setOwnerFilter={setOwnerFilter}
         setEventFilter={setEventFilter}
@@ -180,7 +183,7 @@ export default function MapView({
       />
 
       {filteredPins.length === 0 && (
-        <div className="absolute bottom-5 left-3 right-3 z-1000 rounded-2xl bg-white/95 p-4 text-center shadow-xl backdrop-blur-sm">
+        <div className="absolute bottom-5 left-3 right-3 z-[1000] rounded-2xl bg-white/95 p-4 text-center shadow-xl backdrop-blur-sm">
           <p className="text-sm font-medium text-stone-800">
             Inga rapporter matchar filtret.
           </p>
@@ -188,7 +191,7 @@ export default function MapView({
       )}
 
       {toastMessage && (
-        <div className="absolute bottom-5 left-3 right-3 z-1200 rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-medium text-white shadow-2xl">
+        <div className="absolute bottom-5 left-3 right-3 z-[1200] rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-medium text-white shadow-2xl">
           {toastMessage}
         </div>
       )}

@@ -134,10 +134,16 @@ export default function MapPins({
                     <p className="mt-2 text-sm text-stone-900">
                       <span className="font-medium">Deltagare:</span>{" "}
                       {participants.length}
-                    </p>
+                </p>
+
+                    {isParticipant && (
+                      <div className="mt-2 inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
+                        Du deltar
+                      </div>
+                    )}
                   </div>
                 )}
-
+                
                 {isOwner ? (
                   <div className="space-y-2">
                     <button
