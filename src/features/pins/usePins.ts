@@ -22,8 +22,8 @@ export function usePins({
   setTextInput,
   setSelectedCategory,
 }: UsePinsParams) {
-  const handleAddPin = () => {
-    if (!pendingPosition) return;
+  const handleAddPin = (): Pin | null => {
+    if (!pendingPosition) return null;
 
     const newPin: Pin = {
       id: Date.now(),
@@ -38,31 +38,34 @@ export function usePins({
     setPendingPosition(null);
     setTextInput("");
     setSelectedCategory("skräp");
+
+    return newPin;
   };
 
   const handleCleanPin = (id: number) => {
     setPins((prev) => prev.filter((pin) => pin.id !== id));
   };
 
-const handleCreateEvent = (
-  pinId: number,
-  cleanupEvent: Omit<CleanupEvent, "participants">
-) => {
-  setPins((prev) =>
-    prev.map((pin) =>
-      pin.id === pinId
-        ? {
-            ...pin,
-            cleanupEvent: {
-              ...cleanupEvent,
-              participants: [],
-            },
-          }
-        : pin
-    )
-  );
-};
-const handleRemoveEvent = (pinId: number) => {
+  const handleCreateEvent = (
+    pinId: number,
+    cleanupEvent: Omit<CleanupEvent, "participants">
+  ) => {
+    setPins((prev) =>
+      prev.map((pin) =>
+        pin.id === pinId
+          ? {
+              ...pin,
+              cleanupEvent: {
+                ...cleanupEvent,
+                participants: [],
+              },
+            }
+          : pin
+      )
+    );
+  };
+
+  const handleRemoveEvent = (pinId: number) => {
     setPins((prev) =>
       prev.map((pin) =>
         pin.id === pinId
@@ -80,7 +83,8 @@ const handleRemoveEvent = (pinId: number) => {
       prev.map((pin) => {
         if (pin.id !== pinId || !pin.cleanupEvent) return pin;
 
-        const alreadyJoined = pin.cleanupEvent.participants.includes(currentUserName);
+        const participants = pin.cleanupEvent.participants || [];
+        const alreadyJoined = participants.includes(currentUserName);
 
         if (alreadyJoined) return pin;
 
@@ -88,7 +92,7 @@ const handleRemoveEvent = (pinId: number) => {
           ...pin,
           cleanupEvent: {
             ...pin.cleanupEvent,
-            participants: [...pin.cleanupEvent.participants, currentUserName],
+            participants: [...participants, currentUserName],
           },
         };
       })
@@ -100,11 +104,13 @@ const handleRemoveEvent = (pinId: number) => {
       prev.map((pin) => {
         if (pin.id !== pinId || !pin.cleanupEvent) return pin;
 
+        const participants = pin.cleanupEvent.participants || [];
+
         return {
           ...pin,
           cleanupEvent: {
             ...pin.cleanupEvent,
-            participants: pin.cleanupEvent.participants.filter(
+            participants: participants.filter(
               (participant) => participant !== currentUserName
             ),
           },

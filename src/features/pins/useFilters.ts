@@ -28,9 +28,12 @@ export function useFilters({// funktioner för att filtrera pins baserat på kat
       ownerFilter === "alla" ||
       (ownerFilter === "mina" && pin.createdBy === currentUserName) ||
       (ownerFilter === "andras" && pin.createdBy !== currentUserName);
+
+    const participants = pin.cleanupEvent?.participants || [];
     const matchesEvent =
       eventFilter === "alla" ||
-      (eventFilter === "medEvent" && pin.cleanupEvent);
+      (eventFilter === "medEvent" && pin.cleanupEvent) ||
+      (eventFilter === "deltar" && participants.includes(currentUserName));
     return matchesCategory && matchesOwner && matchesEvent;
 
   });
