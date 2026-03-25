@@ -18,6 +18,7 @@ type Props = {
   onRemoveEvent: (pinId: number) => void;
   onJoinEvent: (pinId: number) => void;
   onLeaveEvent: (pinId: number) => void;
+  onShowToast: (message: string) => void;
 };
 
 export default function MapPins({
@@ -28,6 +29,7 @@ export default function MapPins({
   onRemoveEvent,
   onJoinEvent,
   onLeaveEvent,
+  onShowToast,
 }: Props) {
   const [eventPinId, setEventPinId] = useState<number | null>(null);
   const [dateInput, setDateInput] = useState("");
@@ -65,6 +67,7 @@ export default function MapPins({
       note: noteInput,
     });
 
+    onShowToast("Städevent skapat.");
     resetEventForm();
   };
 
@@ -74,7 +77,6 @@ export default function MapPins({
         const isOwner = pin.createdBy === currentUserName;
         const markerColor = getMarkerColor(pin.category);
         const isEditingEvent = eventPinId === pin.id;
-        const hasEvent = !!pin.cleanupEvent;
         const participants = pin.cleanupEvent?.participants || [];
         const isParticipant = participants.includes(currentUserName);
 
@@ -90,7 +92,7 @@ export default function MapPins({
             }}
           >
             <Popup>
-              <div className="min-w-[240px] space-y-3">
+              <div className="min-w-60 space-y-3">
                 <div>
                   <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
                     Rapport
@@ -172,7 +174,11 @@ export default function MapPins({
 
                     {pin.cleanupEvent && !isParticipant && (
                       <button
-                        onClick={() => onJoinEvent(pin.id)}
+                        onClick={() => {
+                           console.log("join clicked");
+                          onJoinEvent(pin.id);
+                          onShowToast("Du deltar nu i eventet.");
+                        }}
                         className="w-full rounded-2xl bg-blue-500 py-3 text-sm font-medium text-white transition hover:bg-blue-600"
                       >
                         Delta i event
@@ -181,7 +187,11 @@ export default function MapPins({
 
                     {pin.cleanupEvent && isParticipant && (
                       <button
-                        onClick={() => onLeaveEvent(pin.id)}
+                        onClick={() => {
+                           console.log("leave clicked");
+                          onLeaveEvent(pin.id);
+                          onShowToast("Du har lämnat eventet.");
+                        }}
                         className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
                       >
                         Lämna event

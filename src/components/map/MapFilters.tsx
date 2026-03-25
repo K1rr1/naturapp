@@ -24,12 +24,14 @@ export default function MapFilters({
   onReset,
 }: Props) {
   const hasActiveFilters =
-    categoryFilter !== "alla" || ownerFilter !== "alla";
+    categoryFilter !== "alla" ||
+    ownerFilter !== "alla" ||
+    eventFilter !== "alla";
 
   return (
-    <div className="absolute top-3 left-3 right-20 z-1000 rounded-3xl bg-white/95 shadow-xl border border-black/5 p-4 backdrop-blur-sm">
+    <div className="absolute top-3 left-3 z-[1000] w-[19rem] max-w-[calc(100%-5.5rem)] rounded-3xl border border-black/5 bg-white/95 p-4 shadow-xl backdrop-blur-sm">
       <div className="mb-3">
-        <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700 mb-1">
+        <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
           Karta
         </p>
         <h2 className="text-base font-semibold text-stone-900">Filter</h2>
@@ -61,10 +63,9 @@ export default function MapFilters({
           onChange={(e) => setEventFilter(e.target.value as EventFilter)}
           className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm text-stone-800 outline-none transition focus:border-green-600 focus:bg-white"
         >
-          <option value="alla">Alla</option>
+          <option value="alla">Alla eventlägen</option>
           <option value="medEvent">📅 Endast event</option>
         </select>
-
 
         <select
           value={ownerFilter}
@@ -78,7 +79,7 @@ export default function MapFilters({
 
         <button
           onClick={onReset}
-          className="w-full rounded-2xl bg-stone-200 text-stone-800 py-3 text-sm font-medium transition hover:bg-stone-300"
+          className="w-full rounded-2xl bg-stone-200 py-3 text-sm font-medium text-stone-800 transition hover:bg-stone-300"
         >
           Återställ filter
         </button>
