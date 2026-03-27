@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import MapView from "./components/map/MapView";
 import StartScreen from "./components/auth/StartScreen";
 import ProfileButton from "./components/profile/ProfileButton";
 import ProfilePanel from "./components/profile/ProfilePanel";
+import SplashScreen from "./components/ui/SplashScreen";
 
 import { useAuth } from "./features/auth/useAuth";
 import { usePinStore } from "./features/pins/usePinStore";
 
 export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   const {
     currentUser,
@@ -22,10 +24,23 @@ export default function App() {
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
 
+  const isAppReady = useMemo(() => {
+    return hasLoadedUser && hasLoadedPins;
+  }, [hasLoadedUser, hasLoadedPins]);
+
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
   };
+
+  if (showSplash) {
+    return (
+      <SplashScreen
+        isReady={isAppReady}
+        onFinished={() => setShowSplash(false)}
+      />
+    );
+  }
 
   if (!hasLoadedUser || !hasLoadedPins) {
     return null;
