@@ -2,6 +2,7 @@ import type {
   Pin,
   CategoryFilter,
   OwnerFilter,
+  EventFilter,
 } from "./pins.types";
 
 type UseFiltersParams = {
@@ -9,13 +10,15 @@ type UseFiltersParams = {
   categoryFilter: CategoryFilter;
   ownerFilter: OwnerFilter;
   currentUserName: string;
+  eventFilter: EventFilter;
 };
 
-export function useFilters({
+export function useFilters({// funktioner för att filtrera pins baserat på kategori, ägare och eventstatus
   pins,
   categoryFilter,
   ownerFilter,
   currentUserName,
+  eventFilter,
 }: UseFiltersParams) {
   const filteredPins = pins.filter((pin) => {
     const matchesCategory =
@@ -26,7 +29,13 @@ export function useFilters({
       (ownerFilter === "mina" && pin.createdBy === currentUserName) ||
       (ownerFilter === "andras" && pin.createdBy !== currentUserName);
 
-    return matchesCategory && matchesOwner;
+    const participants = pin.cleanupEvent?.participants || [];
+    const matchesEvent =
+      eventFilter === "alla" ||
+      (eventFilter === "medEvent" && pin.cleanupEvent) ||
+      (eventFilter === "deltar" && participants.includes(currentUserName));
+    return matchesCategory && matchesOwner && matchesEvent;
+
   });
 
   return {
