@@ -16,6 +16,43 @@ type ActivityItem = {
   sortValue: number;
 };
 
+type ScrollSectionProps = {
+  title: string;
+  subtitle: string;
+  emptyText: string;
+  children: React.ReactNode;
+  hasItems: boolean;
+};
+
+function ScrollSection({
+  title,
+  subtitle,
+  emptyText,
+  children,
+  hasItems,
+}: ScrollSectionProps) {
+  return (
+    <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+      <h4 className="mb-1 text-lg font-semibold text-green-900">{title}</h4>
+      <p className="mb-4 text-sm text-stone-500">{subtitle}</p>
+
+      {hasItems ? (
+        <div className="relative">
+          <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 pr-12 scrollbar-none">
+            {children}
+          </div>
+
+          <div className="pointer-events-none absolute right-0 top-0 h-full w-12 bg-gradient-to-l from-white to-transparent" />
+        </div>
+      ) : (
+        <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+          {emptyText}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ProfilePanel({
   name,
   mode,
@@ -41,7 +78,7 @@ export default function ProfilePanel({
   const nextEvent = sortedEvents[0];
 
   const sortedUserPins = [...userPins].sort((a, b) => b.id - a.id);
-  const latestUserPins = sortedUserPins.slice(0, 3);
+  const latestUserPins = sortedUserPins.slice(0, 6);
 
   const categoryCounts = userPins.reduce<Record<string, number>>((acc, pin) => {
     acc[pin.category] = (acc[pin.category] || 0) + 1;
@@ -134,7 +171,9 @@ export default function ProfilePanel({
   const currentRank = getUserRank();
 
   const progressWithinRank = Math.min(
-    ((totalActivityScore - currentRank.min) / (currentRank.max - currentRank.min)) * 100,
+    ((totalActivityScore - currentRank.min) /
+      (currentRank.max - currentRank.min)) *
+      100,
     100
   );
 
@@ -169,7 +208,9 @@ export default function ProfilePanel({
       id: `created-event-${pin.id}`,
       type: "created-event" as const,
       title: "Event skapat",
-      description: `${pin.text}${pin.cleanupEvent ? ` • ${pin.cleanupEvent.date} ${pin.cleanupEvent.time}` : ""}`,
+      description: `${pin.text}${
+        pin.cleanupEvent ? ` • ${pin.cleanupEvent.date} ${pin.cleanupEvent.time}` : ""
+      }`,
       sortValue: pin.cleanupEvent
         ? new Date(`${pin.cleanupEvent.date}T${pin.cleanupEvent.time}`).getTime()
         : pin.id,
@@ -178,7 +219,9 @@ export default function ProfilePanel({
       id: `joined-event-${pin.id}`,
       type: "joined-event" as const,
       title: "Gått med i event",
-      description: `${pin.text}${pin.cleanupEvent ? ` • ${pin.cleanupEvent.date} ${pin.cleanupEvent.time}` : ""}`,
+      description: `${pin.text}${
+        pin.cleanupEvent ? ` • ${pin.cleanupEvent.date} ${pin.cleanupEvent.time}` : ""
+      }`,
       sortValue: pin.cleanupEvent
         ? new Date(`${pin.cleanupEvent.date}T${pin.cleanupEvent.time}`).getTime()
         : pin.id,
@@ -244,16 +287,16 @@ export default function ProfilePanel({
             <h3 className="text-2xl font-bold text-green-800">{name}</h3>
 
             <p className="mt-1 text-sm text-stone-500">
-              {mode === "guest" ? "Utforskar appen som gäst" : "Aktiv användare i naturappen"}
+              {mode === "guest"
+                ? "Utforskar appen som gäst"
+                : "Aktiv användare i naturappen"}
             </p>
           </div>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
-                <h4 className="text-lg font-semibold text-green-900">
-                  Status
-                </h4>
+                <h4 className="text-lg font-semibold text-green-900">Status</h4>
                 <p className="text-sm text-stone-500">
                   Din aktivitet i appen just nu.
                 </p>
@@ -286,9 +329,7 @@ export default function ProfilePanel({
           </div>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
-            <h4 className="mb-4 text-lg font-semibold text-green-900">
-              Badges
-            </h4>
+            <h4 className="mb-4 text-lg font-semibold text-green-900">Badges</h4>
 
             <div className="flex flex-wrap gap-2">
               {badges.map((badge) => (
@@ -307,9 +348,7 @@ export default function ProfilePanel({
           </div>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
-            <h4 className="mb-4 text-lg font-semibold text-green-900">
-              Statistik
-            </h4>
+            <h4 className="mb-4 text-lg font-semibold text-green-900">Statistik</h4>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-2xl bg-stone-50 p-4">
@@ -347,46 +386,6 @@ export default function ProfilePanel({
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
-            <h4 className="mb-4 text-lg font-semibold text-green-900">
-              Aktivitet
-            </h4>
-
-            {activityFeed.length > 0 ? (
-              <div className="space-y-3">
-                {activityFeed.map((item) => {
-                  const activityStyle = getActivityStyle(item.type);
-
-                  return (
-                    <div
-                      key={item.id}
-                      className="flex items-start gap-3 rounded-2xl bg-stone-50 p-4"
-                    >
-                      <div
-                        className={`flex h-10 w-10 items-center justify-center rounded-full text-sm ${activityStyle.className}`}
-                      >
-                        {activityStyle.icon}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-semibold text-stone-900">
-                          {item.title}
-                        </p>
-                        <p className="mt-1 text-sm text-stone-600">
-                          {item.description}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
-                Ingen aktivitet ännu.
-              </div>
-            )}
           </div>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
@@ -442,68 +441,122 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
-            <h4 className="mb-1 text-lg font-semibold text-green-900">
-              Mina skapade event
-            </h4>
-            <p className="mb-4 text-sm text-stone-500">
-              Event du själv organiserar via dina rapporter.
-            </p>
+          <ScrollSection
+            title="Aktivitet"
+            subtitle="Dina senaste handlingar i appen."
+            emptyText="Ingen aktivitet ännu. Skapa en rapport eller gå med i ett event för att komma igång."
+            hasItems={activityFeed.length > 0}
+          >
+            {activityFeed.map((item) => {
+              const activityStyle = getActivityStyle(item.type);
 
-            {createdEvents.length > 0 ? (
-              <div className="space-y-3">
-                {createdEvents.map((pin) => (
-                  <div key={pin.id} className="rounded-2xl bg-stone-50 p-4">
-                    <div className="mb-2 flex items-start justify-between gap-3">
-                      <p className="text-sm font-semibold text-stone-900">
-                        {pin.text}
-                      </p>
-
-                      {pin.cleanupEvent && (
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-medium ${
-                            getEventStatus(
-                              pin.cleanupEvent.date,
-                              pin.cleanupEvent.time
-                            ).className
-                          }`}
-                        >
-                          {
-                            getEventStatus(
-                              pin.cleanupEvent.date,
-                              pin.cleanupEvent.time
-                            ).label
-                          }
-                        </span>
-                      )}
+              return (
+                <div
+                  key={item.id}
+                  className="min-w-[82%] snap-start rounded-2xl bg-stone-50 p-4 shadow-sm"
+                >
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`flex h-10 w-10 items-center justify-center rounded-full text-sm ${activityStyle.className}`}
+                    >
+                      {activityStyle.icon}
                     </div>
 
-                    {pin.cleanupEvent && (
-                      <>
-                        <p className="mt-1 text-xs text-stone-500">
-                          {pin.cleanupEvent.date} • {pin.cleanupEvent.time}
-                        </p>
-
-                        <p className="mt-1 text-xs text-stone-500">
-                          Deltagare: {pin.cleanupEvent.participants.length}
-                        </p>
-
-                        {pin.cleanupEvent.note && (
-                          <p className="mt-2 text-sm text-stone-700">
-                            {pin.cleanupEvent.note}
-                          </p>
-                        )}
-                      </>
-                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-stone-900">
+                        {item.title}
+                      </p>
+                      <p className="mt-1 text-sm text-stone-600">
+                        {item.description}
+                      </p>
+                    </div>
                   </div>
-                ))}
+                </div>
+              );
+            })}
+          </ScrollSection>
+
+          <ScrollSection
+            title="Mina skapade event"
+            subtitle="Event du själv organiserar via dina rapporter."
+            emptyText="Du har inte skapat några event ännu."
+            hasItems={createdEvents.length > 0}
+          >
+            {createdEvents.map((pin) => (
+              <div
+                key={pin.id}
+                className="min-w-[82%] snap-start rounded-2xl bg-stone-50 p-4 shadow-sm"
+              >
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-stone-900">
+                    {pin.text}
+                  </p>
+
+                  {pin.cleanupEvent && (
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        getEventStatus(
+                          pin.cleanupEvent.date,
+                          pin.cleanupEvent.time
+                        ).className
+                      }`}
+                    >
+                      {
+                        getEventStatus(
+                          pin.cleanupEvent.date,
+                          pin.cleanupEvent.time
+                        ).label
+                      }
+                    </span>
+                  )}
+                </div>
+
+                {pin.cleanupEvent && (
+                  <>
+                    <p className="mt-1 text-xs text-stone-500">
+                      {pin.cleanupEvent.date} • {pin.cleanupEvent.time}
+                    </p>
+
+                    <p className="mt-1 text-xs text-stone-500">
+                      Deltagare: {pin.cleanupEvent.participants.length}
+                    </p>
+
+                    {pin.cleanupEvent.note && (
+                      <p className="mt-2 text-sm text-stone-700">
+                        {pin.cleanupEvent.note}
+                      </p>
+                    )}
+                  </>
+                )}
               </div>
-            ) : (
-              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
-                Du har inte skapat några event ännu.
+            ))}
+          </ScrollSection>
+
+          <ScrollSection
+            title="Senaste rapporter"
+            subtitle="Dina senaste skapade rapporter."
+            emptyText="Du har inte skapat några rapporter ännu."
+            hasItems={latestUserPins.length > 0}
+          >
+            {latestUserPins.map((pin) => (
+              <div
+                key={pin.id}
+                className="min-w-[82%] snap-start rounded-2xl bg-stone-50 p-4 shadow-sm"
+              >
+                <p className="text-sm font-semibold text-stone-900">
+                  {pin.text}
+                </p>
+                <p className="mt-1 text-xs text-stone-500">
+                  Kategori: {pin.category}
+                </p>
+                {pin.cleanupEvent && (
+                  <p className="mt-1 text-xs text-green-700">
+                    Har event kopplat
+                  </p>
+                )}
               </div>
-            )}
-          </div>
+            ))}
+          </ScrollSection>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
@@ -573,39 +626,7 @@ export default function ProfilePanel({
           </div>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
-            <h4 className="mb-4 text-lg font-semibold text-green-900">
-              Senaste rapporter
-            </h4>
-
-            {latestUserPins.length > 0 ? (
-              <div className="space-y-3">
-                {latestUserPins.map((pin) => (
-                  <div key={pin.id} className="rounded-2xl bg-stone-50 p-4">
-                    <p className="text-sm font-semibold text-stone-900">
-                      {pin.text}
-                    </p>
-                    <p className="mt-1 text-xs text-stone-500">
-                      Kategori: {pin.category}
-                    </p>
-                    {pin.cleanupEvent && (
-                      <p className="mt-1 text-xs text-green-700">
-                        Har event kopplat
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
-                Du har inte skapat några rapporter ännu.
-              </div>
-            )}
-          </div>
-
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
-            <h4 className="mb-4 text-lg font-semibold text-green-900">
-              Konto
-            </h4>
+            <h4 className="mb-4 text-lg font-semibold text-green-900">Konto</h4>
 
             <div className="flex flex-col gap-3">
               <button
