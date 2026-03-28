@@ -8,6 +8,14 @@ type ProfilePanelProps = {
   onLogout: () => void;
 };
 
+type ActivityItem = {
+  id: string;
+  type: "created-pin" | "created-event" | "joined-event";
+  title: string;
+  description: string;
+  sortValue: number;
+};
+
 export default function ProfilePanel({
   name,
   mode,
@@ -149,6 +157,56 @@ export default function ProfilePanel({
     },
   ];
 
+  const activityFeed: ActivityItem[] = [
+    ...userPins.map((pin) => ({
+      id: `pin-${pin.id}`,
+      type: "created-pin" as const,
+      title: "Rapport skapad",
+      description: pin.text,
+      sortValue: pin.id,
+    })),
+    ...createdEvents.map((pin) => ({
+      id: `created-event-${pin.id}`,
+      type: "created-event" as const,
+      title: "Event skapat",
+      description: `${pin.text}${pin.cleanupEvent ? ` • ${pin.cleanupEvent.date} ${pin.cleanupEvent.time}` : ""}`,
+      sortValue: pin.cleanupEvent
+        ? new Date(`${pin.cleanupEvent.date}T${pin.cleanupEvent.time}`).getTime()
+        : pin.id,
+    })),
+    ...eventsUserParticipatesIn.map((pin) => ({
+      id: `joined-event-${pin.id}`,
+      type: "joined-event" as const,
+      title: "Gått med i event",
+      description: `${pin.text}${pin.cleanupEvent ? ` • ${pin.cleanupEvent.date} ${pin.cleanupEvent.time}` : ""}`,
+      sortValue: pin.cleanupEvent
+        ? new Date(`${pin.cleanupEvent.date}T${pin.cleanupEvent.time}`).getTime()
+        : pin.id,
+    })),
+  ]
+    .sort((a, b) => b.sortValue - a.sortValue)
+    .slice(0, 6);
+
+  const getActivityStyle = (type: ActivityItem["type"]) => {
+    switch (type) {
+      case "created-pin":
+        return {
+          icon: "📍",
+          className: "bg-green-100 text-green-700",
+        };
+      case "created-event":
+        return {
+          icon: "📅",
+          className: "bg-blue-100 text-blue-700",
+        };
+      case "joined-event":
+        return {
+          icon: "🙋",
+          className: "bg-amber-100 text-amber-700",
+        };
+    }
+  };
+
   return (
     <>
       <div
@@ -289,6 +347,46 @@ export default function ProfilePanel({
                 </p>
               </div>
             </div>
+          </div>
+
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Aktivitet
+            </h4>
+
+            {activityFeed.length > 0 ? (
+              <div className="space-y-3">
+                {activityFeed.map((item) => {
+                  const activityStyle = getActivityStyle(item.type);
+
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex items-start gap-3 rounded-2xl bg-stone-50 p-4"
+                    >
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-full text-sm ${activityStyle.className}`}
+                      >
+                        {activityStyle.icon}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-stone-900">
+                          {item.title}
+                        </p>
+                        <p className="mt-1 text-sm text-stone-600">
+                          {item.description}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-2xl bg-stone-50 p-4 text-sm text-stone-500">
+                Ingen aktivitet ännu.
+              </div>
+            )}
           </div>
 
           <div className="rounded-4xl bg-white p-5 shadow-sm">
