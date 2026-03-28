@@ -152,11 +152,11 @@ export default function ProfilePanel({
   return (
     <>
       <div
-        className="fixed inset-0 z-[1090] bg-black/25 backdrop-blur-[2px]"
+        className="fixed inset-0 z-1090 bg-black/25 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      <div className="fixed inset-3 z-[1100] overflow-y-auto rounded-[2rem] border border-black/5 bg-stone-100 shadow-2xl">
+      <div className="fixed inset-3 z-1100 overflow-y-auto rounded-4xl border border-black/5 bg-stone-100 shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-stone-100/95 px-5 py-4 backdrop-blur-sm">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
@@ -174,7 +174,7 @@ export default function ProfilePanel({
         </div>
 
         <div className="space-y-5 px-5 py-5">
-          <div className="rounded-[2rem] bg-white p-5 text-center shadow-sm">
+          <div className="rounded-4xl bg-white p-5 text-center shadow-sm">
             <div className="mx-auto mb-3 flex h-24 w-24 items-center justify-center rounded-full border-4 border-green-700 bg-orange-100 text-4xl shadow-sm">
               👤
             </div>
@@ -190,7 +190,7 @@ export default function ProfilePanel({
             </p>
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
                 <h4 className="text-lg font-semibold text-green-900">
@@ -227,7 +227,7 @@ export default function ProfilePanel({
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Badges
             </h4>
@@ -248,7 +248,7 @@ export default function ProfilePanel({
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Statistik
             </h4>
@@ -291,7 +291,7 @@ export default function ProfilePanel({
             </div>
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
               Nästa event
             </h4>
@@ -344,7 +344,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
               Mina skapade event
             </h4>
@@ -407,7 +407,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
               Event du deltar i
             </h4>
@@ -474,7 +474,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Senaste rapporter
             </h4>
@@ -504,7 +504,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+          <div className="rounded-4xl bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Konto
             </h4>
