@@ -92,14 +92,71 @@ export default function ProfilePanel({
     };
   };
 
+  const createdPinsCount = userPins.length;
+  const createdEventsCount = createdEvents.length;
+  const joinedEventsCount = eventsUserParticipatesIn.length;
+
+  const totalActivityScore =
+    createdPinsCount + createdEventsCount * 2 + joinedEventsCount;
+
+  const getUserRank = () => {
+    if (totalActivityScore >= 10) {
+      return {
+        title: "Naturväktare",
+        min: 10,
+        max: 18,
+      };
+    }
+
+    if (totalActivityScore >= 5) {
+      return {
+        title: "Naturspanare",
+        min: 5,
+        max: 10,
+      };
+    }
+
+    return {
+      title: "Nybörjare",
+      min: 0,
+      max: 5,
+    };
+  };
+
+  const currentRank = getUserRank();
+
+  const progressWithinRank = Math.min(
+    ((totalActivityScore - currentRank.min) / (currentRank.max - currentRank.min)) * 100,
+    100
+  );
+
+  const badges = [
+    {
+      label: "Första rapporten",
+      unlocked: createdPinsCount >= 1,
+    },
+    {
+      label: "Eventskapare",
+      unlocked: createdEventsCount >= 1,
+    },
+    {
+      label: "Deltar i städning",
+      unlocked: joinedEventsCount >= 1,
+    },
+    {
+      label: "Aktiv användare",
+      unlocked: totalActivityScore >= 5,
+    },
+  ];
+
   return (
     <>
       <div
-        className="fixed inset-0 z-1090 bg-black/25 backdrop-blur-[2px]"
+        className="fixed inset-0 z-[1090] bg-black/25 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      <div className="fixed inset-3 z-1100 overflow-y-auto rounded-4xl border border-black/5 bg-stone-100 shadow-2xl">
+      <div className="fixed inset-3 z-[1100] overflow-y-auto rounded-[2rem] border border-black/5 bg-stone-100 shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-stone-100/95 px-5 py-4 backdrop-blur-sm">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
@@ -117,13 +174,13 @@ export default function ProfilePanel({
         </div>
 
         <div className="space-y-5 px-5 py-5">
-          <div className="rounded-4xl bg-white p-5 text-center shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 text-center shadow-sm">
             <div className="mx-auto mb-3 flex h-24 w-24 items-center justify-center rounded-full border-4 border-green-700 bg-orange-100 text-4xl shadow-sm">
               👤
             </div>
 
             <div className="mb-2 inline-flex rounded-full bg-amber-700 px-3 py-1 text-xs font-semibold text-white">
-              {mode === "guest" ? "Gästläge" : "Naturväktare"}
+              {mode === "guest" ? "Gästläge" : "Naturprofil"}
             </div>
 
             <h3 className="text-2xl font-bold text-green-800">{name}</h3>
@@ -133,7 +190,65 @@ export default function ProfilePanel({
             </p>
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h4 className="text-lg font-semibold text-green-900">
+                  Status
+                </h4>
+                <p className="text-sm text-stone-500">
+                  Din aktivitet i appen just nu.
+                </p>
+              </div>
+
+              <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700">
+                {currentRank.title}
+              </span>
+            </div>
+
+            <div className="mb-3 rounded-2xl bg-stone-50 p-4">
+              <div className="mb-2 flex items-center justify-between text-sm">
+                <span className="font-medium text-stone-800">
+                  Aktivitetspoäng
+                </span>
+                <span className="text-stone-500">{totalActivityScore}</span>
+              </div>
+
+              <div className="h-3 overflow-hidden rounded-full bg-stone-200">
+                <div
+                  className="h-full rounded-full bg-green-600 transition-all"
+                  style={{ width: `${progressWithinRank}%` }}
+                />
+              </div>
+
+              <p className="mt-2 text-xs text-stone-500">
+                Byggs upp genom rapporter, skapade event och deltagande i event.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
+            <h4 className="mb-4 text-lg font-semibold text-green-900">
+              Badges
+            </h4>
+
+            <div className="flex flex-wrap gap-2">
+              {badges.map((badge) => (
+                <span
+                  key={badge.label}
+                  className={`rounded-full px-3 py-2 text-xs font-medium ${
+                    badge.unlocked
+                      ? "bg-green-100 text-green-700"
+                      : "bg-stone-200 text-stone-500"
+                  }`}
+                >
+                  {badge.unlocked ? "🏅" : "🔒"} {badge.label}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Statistik
             </h4>
@@ -176,7 +291,7 @@ export default function ProfilePanel({
             </div>
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
               Nästa event
             </h4>
@@ -229,7 +344,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
               Mina skapade event
             </h4>
@@ -292,7 +407,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-1 text-lg font-semibold text-green-900">
               Event du deltar i
             </h4>
@@ -359,7 +474,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Senaste rapporter
             </h4>
@@ -389,7 +504,7 @@ export default function ProfilePanel({
             )}
           </div>
 
-          <div className="rounded-4xl bg-white p-5 shadow-sm">
+          <div className="rounded-[2rem] bg-white p-5 shadow-sm">
             <h4 className="mb-4 text-lg font-semibold text-green-900">
               Konto
             </h4>
