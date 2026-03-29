@@ -1,13 +1,22 @@
 type StartScreenProps = {
-  nameInput: string;
-  onNameChange: (value: string) => void;
+  usernameInput: string;
+  passwordInput: string;
+  authError: string;
+  isAuthLoading: boolean;
+  onUsernameChange: (value: string) => void;
+  onPasswordChange: (value: string) => void;
   onLogin: () => void;
   onContinueAsGuest: () => void;
 };
 
+
 export default function StartScreen({
-  nameInput,
-  onNameChange,
+  usernameInput,
+  passwordInput,
+  authError,
+  isAuthLoading,
+  onUsernameChange,
+  onPasswordChange,
   onLogin,
   onContinueAsGuest,
 }: StartScreenProps) {
@@ -32,17 +41,31 @@ export default function StartScreen({
         <div className="space-y-3">
           <input
             type="text"
-            placeholder="Skriv ditt namn"
-            value={nameInput}
-            onChange={(e) => onNameChange(e.target.value)}
+            placeholder="Användarnamn"
+            value={usernameInput}
+            onChange={(e) => onUsernameChange(e.target.value)}
+            className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:bg-white"
+          />
+          <input
+            type="password"
+            placeholder="lösenord"
+            value={passwordInput}
+            onChange={(e) => onPasswordChange(e.target.value)}
             className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:bg-white"
           />
 
+            {authError && (
+            <div className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">
+              {authError}
+            </div>
+            )}
+
           <button
             onClick={onLogin}
+            disabled={isAuthLoading}
             className="w-full rounded-2xl bg-green-700 text-white py-3 font-medium shadow-sm transition hover:bg-green-800"
           >
-            Logga in
+            {isAuthLoading ? "Loggar in..." : "Logga in"} 
           </button>
 
           <button
@@ -55,8 +78,7 @@ export default function StartScreen({
 
         <div className="mt-6 rounded-2xl bg-green-50 px-4 py-3">
           <p className="text-xs text-green-800 leading-5">
-            Tips: gästläge är bra för att snabbt testa kartan. Inloggat läge gör
-            det lättare att följa dina egna rapporter senare.
+Testlogin just nu: användarnamn <strong>user-456</strong> och lösenord <strong>mypassword123</strong>.
           </p>
         </div>
       </div>

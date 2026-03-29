@@ -1,32 +1,48 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import MapView from "./components/map/MapView";
 import StartScreen from "./components/auth/StartScreen";
 import ProfileButton from "./components/profile/ProfileButton";
 import ProfilePanel from "./components/profile/ProfilePanel";
 import SplashScreen from "./components/ui/SplashScreen";
+import Onboarding from "./components/ui/Onboarding";
 
 import { useAuth } from "./features/auth/useAuth";
 import { usePinStore } from "./features/pins/usePinStore";
 
+const ONBOARDING_STORAGE_KEY = "naturapp-onboarding-done";
+
 export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const {
     currentUser,
-    nameInput,
-    setNameInput,
+    usernameInput,
+    passwordInput,
+    setUsernameInput,
+    setPasswordInput,
     login,
     continueAsGuest,
     logout,
     hasLoadedUser,
+    isAuthLoading,
+    authError,
   } = useAuth();
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
 
-  const isAppReady = useMemo(() => {
-    return hasLoadedUser && hasLoadedPins;
-  }, [hasLoadedUser, hasLoadedPins]);
+  const isAppReady = hasLoadedUser && hasLoadedPins;
+
+  useEffect(() => {
+    if (!showSplash && isAppReady) {
+      const hasSeenOnboarding = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+
+      if (!hasSeenOnboarding) {
+        setShowOnboarding(true);
+      }
+    }
+  }, [showSplash, isAppReady]);
 
   const handleLogout = () => {
     logout();
@@ -46,11 +62,25 @@ export default function App() {
     return null;
   }
 
+  if (showOnboarding) {
+    return (
+      <Onboarding
+        onFinish={() => {
+          setShowOnboarding(false);
+        }}
+      />
+    );
+  }
+
   if (!currentUser) {
     return (
       <StartScreen
-        nameInput={nameInput}
-        onNameChange={setNameInput}
+        usernameInput={usernameInput}
+        passwordInput={passwordInput}
+        authError={authError}
+        isAuthLoading={isAuthLoading}
+        onUsernameChange={setUsernameInput}
+        onPasswordChange={setPasswordInput}
         onLogin={login}
         onContinueAsGuest={continueAsGuest}
       />
