@@ -14,19 +14,22 @@ export default function App() {
 
   const {
     currentUser,
-    nameInput,
-    setNameInput,
+    usernameInput,
+    setUsernameInput,
+    passwordInput,
+    setPasswordInput,
     login,
     continueAsGuest,
     logout,
     hasLoadedUser,
+    isAuthLoading,
+    authError,  
   } = useAuth();
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
 
-  const isAppReady = useMemo(() => {
-    return hasLoadedUser && hasLoadedPins;
-  }, [hasLoadedUser, hasLoadedPins]);
+  const isAppReady = hasLoadedUser && hasLoadedPins;
+
 
   const handleLogout = () => {
     logout();
@@ -49,8 +52,12 @@ export default function App() {
   if (!currentUser) {
     return (
       <StartScreen
-        nameInput={nameInput}
-        onNameChange={setNameInput}
+        usernameInput={usernameInput}
+        passwordInput={passwordInput}
+        authError={authError}
+        isAuthLoading={isAuthLoading}
+        onUsernameChange={setUsernameInput}
+        onPasswordChange={setPasswordInput}
         onLogin={login}
         onContinueAsGuest={continueAsGuest}
       />
