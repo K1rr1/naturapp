@@ -1,73 +1,75 @@
-# React + TypeScript + Vite
+# 🌱 Naturappen
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+En mobilanpassad webbapp där användare kan rapportera miljöproblem, skapa städevent och delta i gemensamma insatser.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Demo
 
-## React Compiler
+> Lokal demo via `npm run dev`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## ✨ Funktioner
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 📍 Rapportera problem direkt på kartan
+- 📅 Skapa städevent kopplade till rapporter
+- 🙋 Gå med i event
+- 🧭 Filtrera rapporter och event
+- 👤 Profil med statistik, badges och aktivitet
+- 🏆 Progression baserat på aktivitet
+- ✨ Onboarding + splashscreen
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## 🛠️ Teknik
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+| Teknologi | Beskrivning |
+|----------|------------|
+| React + TypeScript | Frontend |
+| Vite | Build tool |
+| React Leaflet | Kartfunktionalitet |
+| Tailwind CSS | Styling |
+| LocalStorage | Temporär datalagring |
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
+### 🔜 Kommande teknik (under utveckling)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| Teknologi | Syfte |
+|----------|------|
+| Node.js + Express | Backend API |
+| JWT (JSON Web Tokens) | Autentisering |
+| AWS (Lambda / API Gateway) | Hosting av backend |
+| DynamoDB / Databas | Lagring av användare, rapporter och event |
+| Supabase (alternativ) | Databas + auth (utvärderas) |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## ▶️ Så startar du appen
+
+
+
+```bash
+git clone https://github.com/K1rr1/naturapp.git
+
+cd naturapp
+
+2. Installera dependencies
+npm install
+
+3. Starta appen
+npm run dev
+
+4. Öppna i webbläsaren
+http://localhost:5173
+
+🔐 Testinloggning
+Användarnamn: user-456
+Lösenord: mypassword123
+
+eller:
+
+Fortsätt som gäst
+
+
+om eventuell bugg : 
+
+localStorage.clear()
