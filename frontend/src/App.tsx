@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import MapView from "./components/map/MapView";
 import StartScreen from "./components/auth/StartScreen";
 import ProfileButton from "./components/profile/ProfileButton";
