@@ -1,24 +1,22 @@
 import type { LoginCredentials, LoginResponse } from "./auth.types";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export async function loginUser(
   credentials: LoginCredentials
 ): Promise<LoginResponse> {
-  await new Promise((resolve) => setTimeout(resolve, 800));
+  const response = await fetch(`${API_URL}/login`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(credentials),
+  });
 
-  if (
-    credentials.username === "user-456" &&
-    credentials.password === "mypassword123"
-  ) {
-    return {
-      token: "mock-jwt-token-123",
-      user: {
-        id: "user-456",
-        username: "user-456",
-        name: "Testanvändare",
-        mode: "user",
-      },
-    };
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    throw new Error(errorData?.message || "Fel vid inloggning.");
   }
 
-  throw new Error("Fel användarnamn eller lösenord.");
+  return response.json();
 }

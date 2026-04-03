@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth";
+import protectedRouter from "./routes/protected";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.get("/health", (_req, res) => {
 });
 
 app.use("/dev", authRouter);
+app.use("/dev", protectedRouter);
 
 app.listen(port, () => {
   console.log(`Backend körs på http://localhost:${port}`);
