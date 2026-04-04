@@ -18,16 +18,21 @@ export default function App() {
 
   const {
     currentUser,
+    nameInput,
     usernameInput,
     passwordInput,
+    setNameInput,
     setUsernameInput,
     setPasswordInput,
     login,
+    register,
     continueAsGuest,
     logout,
     hasLoadedUser,
     isAuthLoading,
     authError,
+    authMode,
+    setAuthMode,
   } = useAuth();
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
@@ -75,14 +80,19 @@ export default function App() {
   if (!currentUser) {
     return (
       <StartScreen
+        nameInput={nameInput}
         usernameInput={usernameInput}
         passwordInput={passwordInput}
         authError={authError}
         isAuthLoading={isAuthLoading}
+        authMode={authMode}
+        onNameChange={setNameInput}
         onUsernameChange={setUsernameInput}
         onPasswordChange={setPasswordInput}
         onLogin={login}
+        onRegister={register}
         onContinueAsGuest={continueAsGuest}
+        onAuthModeChange={setAuthMode}
       />
     );
   }
