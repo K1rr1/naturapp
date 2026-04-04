@@ -12,7 +12,13 @@ export type LoginCredentials = {
   password: string;
 };
 
+export type RegisterData = {
+  name: string;
+  username: string;
+  password: string;
+};
+
 export type LoginResponse = {
-  user: User;
   token: string;
+  user: User;
 };
