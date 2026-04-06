@@ -21,5 +21,7 @@ export type Pin = {
   text: string;
   category: PinCategory;
   createdBy: string;
+  createdAt: string;
+  status?: string;
   cleanupEvent?: CleanupEvent;
 };

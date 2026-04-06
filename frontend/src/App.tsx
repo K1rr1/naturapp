@@ -5,9 +5,14 @@ import ProfileButton from "./components/profile/ProfileButton";
 import ProfilePanel from "./components/profile/ProfilePanel";
 import SplashScreen from "./components/ui/SplashScreen";
 import Onboarding from "./components/ui/Onboarding";
+import NotificationsPanel from "./components/notifications/NotificationsPanel";
+import CommunityFeed from "./features/community/CommunityFeed";
+import MapActionBar from "./components/layout/MapActionBar";
 
 import { useAuth } from "./features/auth/useAuth";
 import { usePinStore } from "./features/pins/usePinStore";
+import { useNotifications } from "./features/notifications/useNotifications";
+import { useCommunityFeed } from "./features/community/useCommunityFeed";
 
 const ONBOARDING_STORAGE_KEY = "naturapp-onboarding-done";
 
@@ -15,6 +20,9 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [communityOpen, setCommunityOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const {
     currentUser,
@@ -37,6 +45,9 @@ export default function App() {
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
 
+  const { notifications, markAsRead, markAllAsRead } = useNotifications();
+  const { feedItems, communityStats } = useCommunityFeed({ pins });
+
   const isAppReady = hasLoadedUser && hasLoadedPins;
 
   useEffect(() => {
@@ -49,9 +60,54 @@ export default function App() {
     }
   }, [showSplash, isAppReady]);
 
+  const closeAllPanels = () => {
+    setNotificationsOpen(false);
+    setCommunityOpen(false);
+    setFiltersOpen(false);
+  };
+
+  const handleToggleNotifications = () => {
+    if (notificationsOpen) {
+      setNotificationsOpen(false);
+      return;
+    }
+
+    setCommunityOpen(false);
+    setFiltersOpen(false);
+    setNotificationsOpen(true);
+  };
+
+  const handleToggleCommunity = () => {
+    if (communityOpen) {
+      setCommunityOpen(false);
+      return;
+    }
+
+    setNotificationsOpen(false);
+    setFiltersOpen(false);
+    setCommunityOpen(true);
+  };
+
+  const handleToggleFilters = () => {
+    if (filtersOpen) {
+      setFiltersOpen(false);
+      return;
+    }
+
+    setNotificationsOpen(false);
+    setCommunityOpen(false);
+    setFiltersOpen(true);
+  };
+
+  const handleOpenProfile = () => {
+    closeAllPanels();
+    setProfileOpen(true);
+  };
+
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
+    closeAllPanels();
   };
 
   if (showSplash) {
@@ -68,13 +124,7 @@ export default function App() {
   }
 
   if (showOnboarding) {
-    return (
-      <Onboarding
-        onFinish={() => {
-          setShowOnboarding(false);
-        }}
-      />
-    );
+    return <Onboarding onFinish={() => setShowOnboarding(false)} />;
   }
 
   if (!currentUser) {
@@ -98,17 +148,30 @@ export default function App() {
   }
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="relative h-screen w-full overflow-hidden">
       <MapView
         currentUserName={currentUser.name}
         pins={pins}
         setPins={setPins}
+        filtersOpen={filtersOpen}
+        onCloseFilters={() => setFiltersOpen(false)}
+        onToggleFilters={handleToggleFilters}
       />
 
-      <ProfileButton
-        name={currentUser.name}
-        onOpenProfile={() => setProfileOpen(true)}
-      />
+      {!profileOpen && (
+        <>
+          <ProfileButton
+            name={currentUser.name}
+            onOpenProfile={handleOpenProfile}
+          />
+
+          <MapActionBar
+            onOpenNotifications={handleToggleNotifications}
+            onOpenCommunity={handleToggleCommunity}
+            onOpenFilters={handleToggleFilters}
+          />
+        </>
+      )}
 
       {profileOpen && (
         <ProfilePanel
@@ -119,6 +182,26 @@ export default function App() {
           onLogout={handleLogout}
         />
       )}
+
+      {notificationsOpen && (
+        <NotificationsPanel
+          notifications={notifications}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onClose={() => setNotificationsOpen(false)}
+        />
+      )}
+
+      {communityOpen && (
+        <CommunityFeed
+          feedItems={feedItems}
+          totalReports={communityStats.totalReports}
+          totalEvents={communityStats.totalEvents}
+          totalParticipants={communityStats.totalParticipants}
+          onClose={() => setCommunityOpen(false)}
+        />
+      )}
     </div>
   );
 }
+

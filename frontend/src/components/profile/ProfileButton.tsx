@@ -10,13 +10,12 @@ export default function ProfileButton({
   return (
     <button
       onClick={onOpenProfile}
-      className="absolute top-3 right-3 z-1100 flex items-center gap-2 rounded-full border border-black/5 bg-white/95 px-3 py-2 shadow-lg backdrop-blur-sm transition hover:bg-white"
+      className="absolute right-0 top-4 z-1001 flex items-center gap-2 rounded-l-full bg-[#f4f3df]/95 pl-4 pr-3 py-3 shadow-lg backdrop-blur-sm transition hover:bg-[#f0efd8]"
     >
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-sm">
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-200 text-sm">
         👤
-      </span>
-
-      <span className="max-w-22.5 truncate text-sm font-medium text-stone-800">
+      </div>
+      <span className="max-w-28 truncate text-sm font-medium text-stone-800">
         {name}
       </span>
     </button>
