@@ -1,15 +1,17 @@
-import type { Dispatch, SetStateAction } from "react";
 import type { Pin, PinCategory, CleanupEvent } from "./pins.types";
+import { createReport, updateReportStatus } from "./reports.api";
 
 type UsePinsParams = {
   currentUserName: string;
   pendingPosition: [number, number] | null;
   textInput: string;
   selectedCategory: PinCategory;
-  setPins: Dispatch<SetStateAction<Pin[]>>;
-  setPendingPosition: Dispatch<SetStateAction<[number, number] | null>>;
-  setTextInput: Dispatch<SetStateAction<string>>;
-  setSelectedCategory: Dispatch<SetStateAction<PinCategory>>;
+  setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
+  setPendingPosition: React.Dispatch<
+    React.SetStateAction<[number, number] | null>
+  >;
+  setTextInput: React.Dispatch<React.SetStateAction<string>>;
+  setSelectedCategory: React.Dispatch<React.SetStateAction<PinCategory>>;
 };
 
 export function usePins({
@@ -22,21 +24,29 @@ export function usePins({
   setTextInput,
   setSelectedCategory,
 }: UsePinsParams) {
-  const handleAddPin = (): Pin | null => {
-    if (!pendingPosition) return null;
+  const handleAddPin = async (): Promise<Pin | null> => {
+    if (!pendingPosition || !textInput.trim()) return null;
 
-    const newPin: Pin = {
-      id: Date.now(),
+    const createdReport = await createReport({
       lat: pendingPosition[0],
       lng: pendingPosition[1],
-      text: textInput || "Ingen beskrivning",
+      text: textInput.trim(),
       category: selectedCategory,
-      createdBy: currentUserName,
-      createdAt: new Date().toISOString(),
-      status: "öppen",
+    });
+
+    const newPin: Pin = {
+      id: createdReport.id,
+      lat: createdReport.lat,
+      lng: createdReport.lng,
+      text: createdReport.text,
+      category: createdReport.category,
+      createdBy: createdReport.createdBy,
+      createdAt: createdReport.createdAt,
+      status: createdReport.status,
     };
 
-    setPins((prev) => [...prev, newPin]);
+    setPins((prev) => [newPin, ...prev.filter((pin) => pin.id !== newPin.id)]);
+
     setPendingPosition(null);
     setTextInput("");
     setSelectedCategory("skräp");
@@ -44,8 +54,19 @@ export function usePins({
     return newPin;
   };
 
-  const handleCleanPin = (id: number) => {
-    setPins((prev) => prev.filter((pin) => pin.id !== id));
+  const handleCleanPin = async (pinId: number) => {
+    const updatedReport = await updateReportStatus(pinId, "åtgärdad");
+
+    setPins((prev) =>
+      prev.map((pin) =>
+        pin.id === pinId
+          ? {
+              ...pin,
+              status: updatedReport.status,
+            }
+          : pin
+      )
+    );
   };
 
   const handleCreateEvent = (
@@ -84,17 +105,13 @@ export function usePins({
     setPins((prev) =>
       prev.map((pin) => {
         if (pin.id !== pinId || !pin.cleanupEvent) return pin;
-
-        const participants = pin.cleanupEvent.participants || [];
-        const alreadyJoined = participants.includes(currentUserName);
-
-        if (alreadyJoined) return pin;
+        if (pin.cleanupEvent.participants.includes(currentUserName)) return pin;
 
         return {
           ...pin,
           cleanupEvent: {
             ...pin.cleanupEvent,
-            participants: [...participants, currentUserName],
+            participants: [...pin.cleanupEvent.participants, currentUserName],
           },
         };
       })
@@ -106,13 +123,11 @@ export function usePins({
       prev.map((pin) => {
         if (pin.id !== pinId || !pin.cleanupEvent) return pin;
 
-        const participants = pin.cleanupEvent.participants || [];
-
         return {
           ...pin,
           cleanupEvent: {
             ...pin.cleanupEvent,
-            participants: participants.filter(
+            participants: pin.cleanupEvent.participants.filter(
               (participant) => participant !== currentUserName
             ),
           },

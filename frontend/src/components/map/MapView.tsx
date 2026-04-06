@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 
@@ -124,20 +123,28 @@ export default function MapView({
     setEventFilter("alla");
   };
 
-  const handleAddPinWithPrompt = () => {
-    const newPin = handleAddPin();
+  const handleAddPinWithPrompt = async () => {
+    try {
+      const newPin = await handleAddPin();
 
-    if (!newPin) return;
+      if (!newPin) return;
 
-    setRecentCreatedPinId(newPin.id);
+      setRecentCreatedPinId(newPin.id);
 
-    if (!dontShowEventPrompt) {
-      setPostPinPrompt({
-        pinId: newPin.id,
-        pinText: newPin.text,
-      });
-    } else {
-      setToastMessage("Rapport skapad.");
+      if (!dontShowEventPrompt) {
+        setPostPinPrompt({
+          pinId: newPin.id,
+          pinText: newPin.text,
+        });
+      } else {
+        setToastMessage("Rapport skapad.");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        setToastMessage(error.message);
+      } else {
+        setToastMessage("Kunde inte skapa rapport.");
+      }
     }
   };
 
@@ -204,7 +211,7 @@ export default function MapView({
 
       {filtersOpen && (
         <div
-          className="absolute inset-0 z-880 bg-black/20 backdrop-blur-[1px]"
+          className="absolute inset-0 z-[880] bg-black/20 backdrop-blur-[1px]"
           onClick={onCloseFilters}
         />
       )}
@@ -222,13 +229,13 @@ export default function MapView({
       />
 
       {hasActiveFilters && filtersOpen && (
-        <div className="absolute left-1/2 top-24 z-1000 -translate-x-1/2 rounded-full bg-green-50 px-4 py-2 text-sm font-medium text-green-700 shadow-sm">
+        <div className="absolute left-1/2 top-24 z-[1000] -translate-x-1/2 rounded-full bg-green-50 px-4 py-2 text-sm font-medium text-green-700 shadow-sm">
           Filter är aktiva
         </div>
       )}
 
       {filteredPins.length === 0 && (
-        <div className="absolute bottom-24 left-3 right-3 z-1000 rounded-2xl bg-white/95 p-4 text-center shadow-xl backdrop-blur-sm">
+        <div className="absolute bottom-24 left-3 right-3 z-[1000] rounded-2xl bg-white/95 p-4 text-center shadow-xl backdrop-blur-sm">
           <p className="text-sm font-medium text-stone-800">
             Inga rapporter matchar filtret.
           </p>
@@ -236,7 +243,7 @@ export default function MapView({
       )}
 
       {toastMessage && (
-        <div className="absolute bottom-24 left-3 right-3 z-1200 rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-medium text-white shadow-2xl">
+        <div className="absolute bottom-24 left-3 right-3 z-[1200] rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-medium text-white shadow-2xl">
           {toastMessage}
         </div>
       )}
@@ -256,4 +263,3 @@ export default function MapView({
     </div>
   );
 }
-
