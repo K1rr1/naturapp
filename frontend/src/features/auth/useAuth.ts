@@ -7,7 +7,6 @@ const TOKEN_STORAGE_KEY = "naturapp-token";
 
 export function useAuth() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [nameInput, setNameInput] = useState("");
   const [usernameInput, setUsernameInput] = useState("");
   const [passwordInput, setPasswordInput] = useState("");
   const [hasLoadedUser, setHasLoadedUser] = useState(false);
@@ -60,7 +59,6 @@ export function useAuth() {
 
       setUsernameInput("");
       setPasswordInput("");
-      setNameInput("");
     } catch (error) {
       if (error instanceof Error) {
         setAuthError(error.message);
@@ -73,12 +71,11 @@ export function useAuth() {
   };
 
   const register = async () => {
-    const trimmedName = nameInput.trim();
     const trimmedUsername = usernameInput.trim();
     const trimmedPassword = passwordInput.trim();
 
-    if (!trimmedName || !trimmedUsername || !trimmedPassword) {
-      setAuthError("Fyll i namn, användarnamn och lösenord.");
+    if (!trimmedUsername || !trimmedPassword) {
+      setAuthError("Fyll i användarnamn och lösenord.");
       return;
     }
 
@@ -87,7 +84,6 @@ export function useAuth() {
       setAuthError("");
 
       const response = await registerUser({
-        name: trimmedName,
         username: trimmedUsername,
         password: trimmedPassword,
       });
@@ -95,7 +91,6 @@ export function useAuth() {
       localStorage.setItem(TOKEN_STORAGE_KEY, response.token);
       setCurrentUser(response.user);
 
-      setNameInput("");
       setUsernameInput("");
       setPasswordInput("");
     } catch (error) {
@@ -114,7 +109,7 @@ export function useAuth() {
     setCurrentUser({
       id: "guest-user",
       username: "guest",
-      name: "Gäst",
+      name: "guest",
       mode: "guest",
     });
   };
@@ -122,17 +117,14 @@ export function useAuth() {
   const logout = () => {
     setCurrentUser(null);
     setAuthError("");
-    setNameInput("");
     setUsernameInput("");
     setPasswordInput("");
   };
 
   return {
     currentUser,
-    nameInput,
     usernameInput,
     passwordInput,
-    setNameInput,
     setUsernameInput,
     setPasswordInput,
     login,

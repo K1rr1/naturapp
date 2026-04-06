@@ -12,10 +12,10 @@ type LoginBody = {
 type RegisterBody = {
   username?: string;
   password?: string;
-  name?: string;
+  
 };
 
-function createToken(user: { id: string; username: string; name: string }) {
+function createToken(user: { id: string; username: string; }) {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
@@ -26,7 +26,7 @@ function createToken(user: { id: string; username: string; name: string }) {
     {
       sub: user.id,
       username: user.username,
-      name: user.name,
+      
     },
     secret,
     { expiresIn: "1h" }
@@ -56,7 +56,7 @@ router.post("/login", (req: Request, res: Response) => {
   {
     sub: user.id,
     username: user.username,
-    name: user.name,
+    
   },
   process.env.JWT_SECRET as string,
   { expiresIn: "1h" }
@@ -67,16 +67,16 @@ router.post("/login", (req: Request, res: Response) => {
     user: {
       id: user.id,
       username: user.username,
-      name: user.name,
+      
       mode: "user",
     },
   });
 });
 
 router.post("/register", (req: Request, res: Response) => {
-  const { username, password, name } = req.body as RegisterBody;
+  const { username, password, } = req.body as RegisterBody;
 
-  if (!username || !password || !name) {
+  if (!username || !password ) {
     return res.status(400).json({
       message: "Namn, användarnamn och lösenord krävs.",
     });
@@ -94,7 +94,7 @@ router.post("/register", (req: Request, res: Response) => {
     id: `user-${Date.now()}`,
     username,
     password,
-    name,
+    
   };
 
   users.push(newUser);
@@ -106,7 +106,7 @@ router.post("/register", (req: Request, res: Response) => {
     user: {
       id: newUser.id,
       username: newUser.username,
-      name: newUser.name,
+      name: newUser.username,
       mode: "user",
     },
   });

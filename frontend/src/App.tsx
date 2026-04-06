@@ -26,10 +26,10 @@ export default function App() {
 
   const {
     currentUser,
-    nameInput,
+    
     usernameInput,
     passwordInput,
-    setNameInput,
+   
     setUsernameInput,
     setPasswordInput,
     login,
@@ -130,13 +130,13 @@ export default function App() {
   if (!currentUser) {
     return (
       <StartScreen
-        nameInput={nameInput}
+        
         usernameInput={usernameInput}
         passwordInput={passwordInput}
         authError={authError}
         isAuthLoading={isAuthLoading}
         authMode={authMode}
-        onNameChange={setNameInput}
+        
         onUsernameChange={setUsernameInput}
         onPasswordChange={setPasswordInput}
         onLogin={login}
@@ -151,6 +151,7 @@ export default function App() {
     <div className="relative h-screen w-full overflow-hidden">
       <MapView
         currentUserName={currentUser.name}
+        currentUsername={currentUser.username}
         pins={pins}
         setPins={setPins}
         filtersOpen={filtersOpen}

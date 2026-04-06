@@ -1,11 +1,9 @@
 type StartScreenProps = {
-  nameInput: string;
   usernameInput: string;
   passwordInput: string;
   authError: string;
   isAuthLoading: boolean;
   authMode: "login" | "register";
-  onNameChange: (value: string) => void;
   onUsernameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onLogin: () => void;
@@ -15,13 +13,11 @@ type StartScreenProps = {
 };
 
 export default function StartScreen({
-  nameInput,
   usernameInput,
   passwordInput,
   authError,
   isAuthLoading,
   authMode,
-  onNameChange,
   onUsernameChange,
   onPasswordChange,
   onLogin,
@@ -71,16 +67,6 @@ export default function StartScreen({
         </div>
 
         <div className="space-y-3">
-          {isRegister && (
-            <input
-              type="text"
-              placeholder="Namn"
-              value={nameInput}
-              onChange={(e) => onNameChange(e.target.value)}
-              className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-3 text-sm outline-none transition focus:border-green-600 focus:bg-white"
-            />
-          )}
-
           <input
             type="text"
             placeholder="Användarnamn"
