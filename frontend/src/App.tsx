@@ -6,10 +6,12 @@ import ProfilePanel from "./components/profile/ProfilePanel";
 import SplashScreen from "./components/ui/SplashScreen";
 import Onboarding from "./components/ui/Onboarding";
 import NotificationsPanel from "./components/notifications/NotificationsPanel";
+import CommunityFeed from "./components/community/CommunityFeed";
 
 import { useAuth } from "./features/auth/useAuth";
 import { usePinStore } from "./features/pins/usePinStore";
 import { useNotifications } from "./features/notifications/useNotifications";
+import { useCommunityFeed } from "./components/community/useCommunityFeed";
 
 const ONBOARDING_STORAGE_KEY = "naturapp-onboarding-done";
 
@@ -18,6 +20,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [communityOpen, setCommunityOpen] = useState(false);
 
   const {
     currentUser,
@@ -47,6 +50,8 @@ export default function App() {
     markAllAsRead,
   } = useNotifications();
 
+  const { feedItems, communityStats } = useCommunityFeed({ pins });
+
   const isAppReady = hasLoadedUser && hasLoadedPins;
 
   useEffect(() => {
@@ -63,6 +68,7 @@ export default function App() {
     logout();
     setProfileOpen(false);
     setNotificationsOpen(false);
+    setCommunityOpen(false);
   };
 
   if (showSplash) {
@@ -146,6 +152,24 @@ export default function App() {
         Notiser
       </button>
 
+      <button
+        onClick={() => setCommunityOpen(true)}
+        style={{
+          position: "absolute",
+          top: "132px",
+          right: "12px",
+          zIndex: 1000,
+          padding: "10px 14px",
+          borderRadius: "12px",
+          border: "none",
+          background: "#556B2F",
+          color: "white",
+          cursor: "pointer",
+        }}
+      >
+        Flöde
+      </button>
+
       {profileOpen && (
         <ProfilePanel
           name={currentUser.name}
@@ -162,6 +186,16 @@ export default function App() {
           onMarkAsRead={markAsRead}
           onMarkAllAsRead={markAllAsRead}
           onClose={() => setNotificationsOpen(false)}
+        />
+      )}
+
+      {communityOpen && (
+        <CommunityFeed
+          feedItems={feedItems}
+          totalReports={communityStats.totalReports}
+          totalEvents={communityStats.totalEvents}
+          totalParticipants={communityStats.totalParticipants}
+          onClose={() => setCommunityOpen(false)}
         />
       )}
     </div>
