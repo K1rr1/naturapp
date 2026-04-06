@@ -1,8 +1,18 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
+export type AuthenticatedRequest = Request & {
+  user?: {
+    sub: string;
+    username: string;
+    name: string;
+    iat?: number;
+    exp?: number;
+  };
+};
+
 export function authMiddleware(
-  req: Request,
+  req: AuthenticatedRequest,
   res: Response,
   next: NextFunction
 ) {
@@ -15,11 +25,12 @@ export function authMiddleware(
   const token = authHeader.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as AuthenticatedRequest["user"];
 
-    // lägg till user info på request
-    (req as any).user = decoded;
-
+    req.user = decoded;
     next();
   } catch {
     return res.status(401).json({ message: "Ogiltig token." });

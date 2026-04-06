@@ -52,7 +52,15 @@ router.post("/login", (req: Request, res: Response) => {
     });
   }
 
-  const token = createToken(user);
+  const token = jwt.sign(
+  {
+    sub: user.id,
+    username: user.username,
+    name: user.name,
+  },
+  process.env.JWT_SECRET as string,
+  { expiresIn: "1h" }
+);
 
   return res.json({
     token,
