@@ -5,9 +5,11 @@ import ProfileButton from "./components/profile/ProfileButton";
 import ProfilePanel from "./components/profile/ProfilePanel";
 import SplashScreen from "./components/ui/SplashScreen";
 import Onboarding from "./components/ui/Onboarding";
+import NotificationsPanel from "./components/notifications/NotificationsPanel";
 
 import { useAuth } from "./features/auth/useAuth";
 import { usePinStore } from "./features/pins/usePinStore";
+import { useNotifications } from "./features/notifications/useNotifications";
 
 const ONBOARDING_STORAGE_KEY = "naturapp-onboarding-done";
 
@@ -15,6 +17,7 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const {
     currentUser,
@@ -37,6 +40,13 @@ export default function App() {
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
 
+  const {
+    notifications,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications();
+
   const isAppReady = hasLoadedUser && hasLoadedPins;
 
   useEffect(() => {
@@ -52,6 +62,7 @@ export default function App() {
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
+    setNotificationsOpen(false);
   };
 
   if (showSplash) {
@@ -110,6 +121,31 @@ export default function App() {
         onOpenProfile={() => setProfileOpen(true)}
       />
 
+      <button
+        onClick={() => {
+          addNotification(
+            "event-join",
+            "Någon gick med i ditt event",
+            "2 personer har nu gått med i din städinsats."
+          );
+          setNotificationsOpen(true);
+        }}
+        style={{
+          position: "absolute",
+          top: "80px",
+          right: "12px",
+          zIndex: 1000,
+          padding: "10px 14px",
+          borderRadius: "12px",
+          border: "none",
+          background: "#1f2937",
+          color: "white",
+          cursor: "pointer",
+        }}
+      >
+        Notiser
+      </button>
+
       {profileOpen && (
         <ProfilePanel
           name={currentUser.name}
@@ -117,6 +153,15 @@ export default function App() {
           pins={pins}
           onClose={() => setProfileOpen(false)}
           onLogout={handleLogout}
+        />
+      )}
+
+      {notificationsOpen && (
+        <NotificationsPanel
+          notifications={notifications}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          onClose={() => setNotificationsOpen(false)}
         />
       )}
     </div>
