@@ -2,12 +2,15 @@ import type {
   CategoryFilter,
   OwnerFilter,
   EventFilter,
+  StatusFilter,
 } from "../../features/pins/pins.types";
 
 type MapFiltersProps = {
   categoryFilter: CategoryFilter;
   ownerFilter: OwnerFilter;
   eventFilter: EventFilter;
+  statusFilter: StatusFilter;
+  onStatusFilterChange: (value: StatusFilter) => void;
   isOpen: boolean;
   onToggleOpen: () => void;
   setCategoryFilter: (value: CategoryFilter) => void;
@@ -20,6 +23,8 @@ export default function MapFilters({
   categoryFilter,
   ownerFilter,
   eventFilter,
+  statusFilter,
+  onStatusFilterChange,
   isOpen,
   onToggleOpen,
   setCategoryFilter,
@@ -30,7 +35,7 @@ export default function MapFilters({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute left-1/2 top-50 z-1000 w-[90%] max-w-sm -translate-x-1/2">
+    <div className="absolute left-1/2 top-40 z-1000 w-[70%] max-w-sm -translate-x-1/2">
       <div className="rounded-2rem border border-black/5 p-5 shadow-2xl backdrop-blur-md">
         <div className="mb-4 flex items-start justify-between gap-3">
           <div>
@@ -58,8 +63,8 @@ export default function MapFilters({
           >
             <option value="alla">Alla kategorier</option>
             <option value="skräp">Skräp</option>
-            <option value="farligt">Farligt</option>
-            <option value="naturvård">Naturvård</option>
+            <option value="belysning">Belysning</option>
+            <option value="trasigt">Trasigt</option>
           </select>
 
           <select
@@ -82,6 +87,8 @@ export default function MapFilters({
             <option value="mina">Mina rapporter</option>
             <option value="andras">Andras rapporter</option>
           </select>
+
+          
 
           <button
             onClick={onReset}

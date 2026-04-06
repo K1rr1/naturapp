@@ -12,9 +12,12 @@ export type CleanupEvent = {
   time: string;
   note: string;
   participants: string[];
+  
 };
+export type StatusFilter = "öppna" | "åtgärdade" ;
 
 export type Pin = {
+ 
   id: number;
   lat: number;
   lng: number;

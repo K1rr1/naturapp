@@ -12,6 +12,7 @@ import type {
   CategoryFilter,
   OwnerFilter,
   EventFilter,
+  StatusFilter,
 } from "../../features/pins/pins.types";
 
 import { usePins } from "../../features/pins/usePins";
@@ -19,6 +20,7 @@ import { useFilters } from "../../features/pins/useFilters";
 
 type MapViewProps = {
   currentUserName: string;
+  currentUsername: string;
   pins: Pin[];
   setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
   filtersOpen: boolean;
@@ -30,6 +32,7 @@ const HIDE_EVENT_PROMPT_KEY = "naturapp-hide-event-prompt";
 
 export default function MapView({
   currentUserName,
+  currentUsername,
   pins,
   setPins,
   filtersOpen,
@@ -47,6 +50,7 @@ export default function MapView({
     useState<CategoryFilter>("alla");
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>("alla");
   const [eventFilter, setEventFilter] = useState<EventFilter>("alla");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("öppna");
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [recentCreatedPinId, setRecentCreatedPinId] = useState<number | null>(
@@ -80,6 +84,7 @@ export default function MapView({
     handleLeaveEvent,
   } = usePins({
     currentUserName,
+    currentUsername,
     pendingPosition,
     textInput,
     selectedCategory,
@@ -94,6 +99,7 @@ export default function MapView({
     categoryFilter,
     ownerFilter,
     eventFilter,
+    statusFilter,
     currentUserName,
   });
 
@@ -121,6 +127,7 @@ export default function MapView({
     setCategoryFilter("alla");
     setOwnerFilter("alla");
     setEventFilter("alla");
+    setStatusFilter("öppna");
   };
 
   const handleAddPinWithPrompt = async () => {
@@ -168,7 +175,8 @@ export default function MapView({
   const hasActiveFilters =
     categoryFilter !== "alla" ||
     ownerFilter !== "alla" ||
-    eventFilter !== "alla";
+    eventFilter !== "alla" ||
+    statusFilter !== "öppna";
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -188,6 +196,7 @@ export default function MapView({
         <MapPins
           pins={filteredPins}
           currentUserName={currentUserName}
+         
           recentCreatedPinId={recentCreatedPinId}
           onCleanPin={handleCleanPin}
           onCreateEvent={handleCreateEvent}
@@ -220,11 +229,13 @@ export default function MapView({
         categoryFilter={categoryFilter}
         ownerFilter={ownerFilter}
         eventFilter={eventFilter}
+        statusFilter={statusFilter}
         isOpen={filtersOpen}
         onToggleOpen={onToggleFilters}
         setCategoryFilter={setCategoryFilter}
         setOwnerFilter={setOwnerFilter}
         setEventFilter={setEventFilter}
+        onStatusFilterChange={setStatusFilter}
         onReset={handleResetFilters}
       />
 

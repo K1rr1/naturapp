@@ -11,6 +11,7 @@ type UseFiltersParams = {
   ownerFilter: OwnerFilter;
   currentUserName: string;
   eventFilter: EventFilter;
+  statusFilter: string;
 };
 
 export function useFilters({// funktioner för att filtrera pins baserat på kategori, ägare och eventstatus

@@ -3,6 +3,7 @@ import { createReport, updateReportStatus } from "./reports.api";
 
 type UsePinsParams = {
   currentUserName: string;
+  currentUsername: string;
   pendingPosition: [number, number] | null;
   textInput: string;
   selectedCategory: PinCategory;
