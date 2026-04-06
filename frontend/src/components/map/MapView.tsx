@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 
@@ -49,6 +50,9 @@ export default function MapView({
   const [eventFilter, setEventFilter] = useState<EventFilter>("alla");
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [recentCreatedPinId, setRecentCreatedPinId] = useState<number | null>(
+    null
+  );
   const [postPinPrompt, setPostPinPrompt] = useState<{
     pinId: number;
     pinText: string;
@@ -104,6 +108,16 @@ export default function MapView({
     return () => clearTimeout(timeout);
   }, [toastMessage]);
 
+  useEffect(() => {
+    if (!recentCreatedPinId) return;
+
+    const timeout = setTimeout(() => {
+      setRecentCreatedPinId(null);
+    }, 1400);
+
+    return () => clearTimeout(timeout);
+  }, [recentCreatedPinId]);
+
   const handleResetFilters = () => {
     setCategoryFilter("alla");
     setOwnerFilter("alla");
@@ -114,6 +128,8 @@ export default function MapView({
     const newPin = handleAddPin();
 
     if (!newPin) return;
+
+    setRecentCreatedPinId(newPin.id);
 
     if (!dontShowEventPrompt) {
       setPostPinPrompt({
@@ -165,6 +181,7 @@ export default function MapView({
         <MapPins
           pins={filteredPins}
           currentUserName={currentUserName}
+          recentCreatedPinId={recentCreatedPinId}
           onCleanPin={handleCleanPin}
           onCreateEvent={handleCreateEvent}
           onRemoveEvent={handleRemoveEvent}
@@ -187,7 +204,7 @@ export default function MapView({
 
       {filtersOpen && (
         <div
-          className="absolute inset-0 z-[850] bg-black/20 backdrop-blur-[1px]"
+          className="absolute inset-0 z-[880] bg-black/20 backdrop-blur-[1px]"
           onClick={onCloseFilters}
         />
       )}

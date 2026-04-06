@@ -32,6 +32,8 @@ export function usePins({
       text: textInput || "Ingen beskrivning",
       category: selectedCategory,
       createdBy: currentUserName,
+      createdAt: new Date().toISOString(),
+      status: "öppen",
     };
 
     setPins((prev) => [...prev, newPin]);
