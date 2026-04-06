@@ -257,8 +257,8 @@ export default function ProfilePanel({
         onClick={onClose}
       />
 
-      <div className="fixed inset-3 z-1100 overflow-y-auto rounded-4xl border border-black/5 bg-stone-100 shadow-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-stone-100/95 px-5 py-4 backdrop-blur-sm">
+      <div className="fixed inset-3 z-1100 overflow-y-auto rounded-4xl border border-black/5 bg-[#f4f3df]/95 pl-4 shadow-2xl">
+        <div className="sticky top-0 z-10 flex items-center justify-between  bg-[#f4f3df]/95 pl-4 backdrop-blur-sm">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
               Profil

@@ -79,8 +79,8 @@ export default function CommunityFeed({
           </button>
         </div>
 
-        <div className="space-y-6 px-5 py-5">
-          <section className="overflow-hidden rounded-[2rem]backdrop-blur-1px p-6 shadow-sm">
+        <div className="space-y-6 px-5 py-5 bg-[#f4f3df]/95 pl-4">
+          <section className="overflow-hidden rounded-[2rem]backdrop-blur-1px p-6 shadow-sm bg-[#f4f3df]/95 pl-4 backdrop-blur-sm">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-700/70">
               Gemenskapens påverkan
             </p>
