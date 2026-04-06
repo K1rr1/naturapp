@@ -1,4 +1,4 @@
-import type { Pin } from "../../features/pins/pins.types";
+import type { Pin } from "../pins/pins.types";
 import type { FeedItem } from "./community.types";
 
 type UseCommunityFeedParams = {

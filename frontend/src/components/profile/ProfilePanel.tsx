@@ -253,7 +253,7 @@ export default function ProfilePanel({
   return (
     <>
       <div
-        className="fixed inset-0 z-1090 bg-black/25 backdrop-blur-[2px]"
+       className=" fixed inset-0 z-1100 bg-black/30 backdrop-blur-1px"
         onClick={onClose}
       />
 

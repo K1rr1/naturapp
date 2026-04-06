@@ -56,11 +56,11 @@ export default function CommunityFeed({
   return (
     <>
       <div
-        className="fixed inset-0 z-[1290] bg-black/25 backdrop-blur-[2px]"
+       className=" fixed inset-0 z-11 bg-black/30 backdrop-blur-1px"
         onClick={onClose}
       />
 
-      <div className="fixed inset-3 z-[1300] overflow-y-auto rounded-[2rem] border border-black/5 bg-[#f7f7ec] shadow-2xl">
+      <div className="fixed inset-3 z-1100 overflow-y-auto rounded-2rem border border-black/5 bg-[#f7f7ec] shadow-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-black/5 bg-[#f7f7ec]/95 px-5 py-4 backdrop-blur-sm">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">
@@ -80,7 +80,7 @@ export default function CommunityFeed({
         </div>
 
         <div className="space-y-6 px-5 py-5">
-          <section className="overflow-hidden rounded-[2rem] bg-[#efe2b9] p-6 shadow-sm">
+          <section className="overflow-hidden rounded-[2rem]backdrop-blur-1px p-6 shadow-sm">
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-stone-700/70">
               Gemenskapens påverkan
             </p>

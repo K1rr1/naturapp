@@ -21,6 +21,9 @@ type MapViewProps = {
   currentUserName: string;
   pins: Pin[];
   setPins: React.Dispatch<React.SetStateAction<Pin[]>>;
+  filtersOpen: boolean;
+  onCloseFilters: () => void;
+  onToggleFilters: () => void;
 };
 
 const HIDE_EVENT_PROMPT_KEY = "naturapp-hide-event-prompt";
@@ -29,15 +32,21 @@ export default function MapView({
   currentUserName,
   pins,
   setPins,
+  filtersOpen,
+  onCloseFilters,
+  onToggleFilters,
 }: MapViewProps) {
-  const [pendingPosition, setPendingPosition] = useState<[number, number] | null>(null);
+  const [pendingPosition, setPendingPosition] = useState<[number, number] | null>(
+    null
+  );
   const [textInput, setTextInput] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<PinCategory>("skräp");
+  const [selectedCategory, setSelectedCategory] =
+    useState<PinCategory>("skräp");
 
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>("alla");
+  const [categoryFilter, setCategoryFilter] =
+    useState<CategoryFilter>("alla");
   const [ownerFilter, setOwnerFilter] = useState<OwnerFilter>("alla");
   const [eventFilter, setEventFilter] = useState<EventFilter>("alla");
-  const [filtersOpen, setFiltersOpen] = useState(true);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [postPinPrompt, setPostPinPrompt] = useState<{
@@ -133,12 +142,18 @@ export default function MapView({
     localStorage.setItem(HIDE_EVENT_PROMPT_KEY, String(checked));
   };
 
+  const hasActiveFilters =
+    categoryFilter !== "alla" ||
+    ownerFilter !== "alla" ||
+    eventFilter !== "alla";
+
   return (
-    <div className="relative h-screen w-full">
+    <div className="relative h-screen w-full overflow-hidden">
       <MapContainer
         center={[57.7089, 11.9746]}
         zoom={13}
         style={{ height: "100%", width: "100%" }}
+        className="z-0"
       >
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
@@ -170,20 +185,33 @@ export default function MapView({
         )}
       </MapContainer>
 
+      {filtersOpen && (
+        <div
+          className="absolute inset-0 z-[850] bg-black/20 backdrop-blur-[1px]"
+          onClick={onCloseFilters}
+        />
+      )}
+
       <MapFilters
         categoryFilter={categoryFilter}
         ownerFilter={ownerFilter}
         eventFilter={eventFilter}
         isOpen={filtersOpen}
-        onToggleOpen={() => setFiltersOpen((prev) => !prev)}
+        onToggleOpen={onToggleFilters}
         setCategoryFilter={setCategoryFilter}
         setOwnerFilter={setOwnerFilter}
         setEventFilter={setEventFilter}
         onReset={handleResetFilters}
       />
 
+      {hasActiveFilters && filtersOpen && (
+        <div className="absolute left-1/2 top-24 z-[1000] -translate-x-1/2 rounded-full bg-green-50 px-4 py-2 text-sm font-medium text-green-700 shadow-sm">
+          Filter är aktiva
+        </div>
+      )}
+
       {filteredPins.length === 0 && (
-        <div className="absolute bottom-5 left-3 right-3 z-[1000] rounded-2xl bg-white/95 p-4 text-center shadow-xl backdrop-blur-sm">
+        <div className="absolute bottom-24 left-3 right-3 z-[1000] rounded-2xl bg-white/95 p-4 text-center shadow-xl backdrop-blur-sm">
           <p className="text-sm font-medium text-stone-800">
             Inga rapporter matchar filtret.
           </p>
@@ -191,7 +219,7 @@ export default function MapView({
       )}
 
       {toastMessage && (
-        <div className="absolute bottom-5 left-3 right-3 z-[1200] rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-medium text-white shadow-2xl">
+        <div className="absolute bottom-24 left-3 right-3 z-[1200] rounded-2xl bg-stone-900 px-4 py-3 text-center text-sm font-medium text-white shadow-2xl">
           {toastMessage}
         </div>
       )}
@@ -211,3 +239,4 @@ export default function MapView({
     </div>
   );
 }
+

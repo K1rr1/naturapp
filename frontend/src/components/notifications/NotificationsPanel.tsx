@@ -23,11 +23,11 @@ export default function NotificationsPanel({
   return (
     <>
       <div
-        className="fixed inset-0 z-[1190] bg-black/20"
+        className=" fixed inset-0 z-1100 bg-black/30 backdrop-blur-1px"
         onClick={onClose}
       />
 
-      <div className="fixed right-3 top-20 z-[1200] w-[20rem] max-w-[calc(100%-1.5rem)] rounded-3xl border border-black/5 bg-white p-4 shadow-2xl">
+      <div className="fixed right-3 top-20 z-1100 w-20rem max-w-calc(100%-1.5rem) rounded-3xl border border-black/5 bg-white p-4 shadow-2xl">
         <div className="mb-4 flex items-center justify-between">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-green-700">

@@ -6,12 +6,13 @@ import ProfilePanel from "./components/profile/ProfilePanel";
 import SplashScreen from "./components/ui/SplashScreen";
 import Onboarding from "./components/ui/Onboarding";
 import NotificationsPanel from "./components/notifications/NotificationsPanel";
-import CommunityFeed from "./components/community/CommunityFeed";
+import CommunityFeed from "./features/community/CommunityFeed";
+import MapActionBar from "./components/layout/MapActionBar";
 
 import { useAuth } from "./features/auth/useAuth";
 import { usePinStore } from "./features/pins/usePinStore";
 import { useNotifications } from "./features/notifications/useNotifications";
-import { useCommunityFeed } from "./components/community/useCommunityFeed";
+import { useCommunityFeed } from "./features/community/useCommunityFeed";
 
 const ONBOARDING_STORAGE_KEY = "naturapp-onboarding-done";
 
@@ -21,6 +22,7 @@ export default function App() {
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [communityOpen, setCommunityOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const {
     currentUser,
@@ -43,13 +45,7 @@ export default function App() {
 
   const { pins, setPins, hasLoadedPins } = usePinStore();
 
-  const {
-    notifications,
-    addNotification,
-    markAsRead,
-    markAllAsRead,
-  } = useNotifications();
-
+  const { notifications, markAsRead, markAllAsRead } = useNotifications();
   const { feedItems, communityStats } = useCommunityFeed({ pins });
 
   const isAppReady = hasLoadedUser && hasLoadedPins;
@@ -64,11 +60,54 @@ export default function App() {
     }
   }, [showSplash, isAppReady]);
 
+  const closeAllPanels = () => {
+    setNotificationsOpen(false);
+    setCommunityOpen(false);
+    setFiltersOpen(false);
+  };
+
+  const handleToggleNotifications = () => {
+    if (notificationsOpen) {
+      setNotificationsOpen(false);
+      return;
+    }
+
+    setCommunityOpen(false);
+    setFiltersOpen(false);
+    setNotificationsOpen(true);
+  };
+
+  const handleToggleCommunity = () => {
+    if (communityOpen) {
+      setCommunityOpen(false);
+      return;
+    }
+
+    setNotificationsOpen(false);
+    setFiltersOpen(false);
+    setCommunityOpen(true);
+  };
+
+  const handleToggleFilters = () => {
+    if (filtersOpen) {
+      setFiltersOpen(false);
+      return;
+    }
+
+    setNotificationsOpen(false);
+    setCommunityOpen(false);
+    setFiltersOpen(true);
+  };
+
+  const handleOpenProfile = () => {
+    closeAllPanels();
+    setProfileOpen(true);
+  };
+
   const handleLogout = () => {
     logout();
     setProfileOpen(false);
-    setNotificationsOpen(false);
-    setCommunityOpen(false);
+    closeAllPanels();
   };
 
   if (showSplash) {
@@ -85,13 +124,7 @@ export default function App() {
   }
 
   if (showOnboarding) {
-    return (
-      <Onboarding
-        onFinish={() => {
-          setShowOnboarding(false);
-        }}
-      />
-    );
+    return <Onboarding onFinish={() => setShowOnboarding(false)} />;
   }
 
   if (!currentUser) {
@@ -115,60 +148,30 @@ export default function App() {
   }
 
   return (
-    <div style={{ position: "relative" }}>
+    <div className="relative h-screen w-full overflow-hidden">
       <MapView
         currentUserName={currentUser.name}
         pins={pins}
         setPins={setPins}
+        filtersOpen={filtersOpen}
+        onCloseFilters={() => setFiltersOpen(false)}
+        onToggleFilters={handleToggleFilters}
       />
 
-      <ProfileButton
-        name={currentUser.name}
-        onOpenProfile={() => setProfileOpen(true)}
-      />
+      {!profileOpen && (
+        <>
+          <ProfileButton
+            name={currentUser.name}
+            onOpenProfile={handleOpenProfile}
+          />
 
-      <button
-        onClick={() => {
-          addNotification(
-            "event-join",
-            "Någon gick med i ditt event",
-            "2 personer har nu gått med i din städinsats."
-          );
-          setNotificationsOpen(true);
-        }}
-        style={{
-          position: "absolute",
-          top: "80px",
-          right: "12px",
-          zIndex: 1000,
-          padding: "10px 14px",
-          borderRadius: "12px",
-          border: "none",
-          background: "#1f2937",
-          color: "white",
-          cursor: "pointer",
-        }}
-      >
-        Notiser
-      </button>
-
-      <button
-        onClick={() => setCommunityOpen(true)}
-        style={{
-          position: "absolute",
-          top: "132px",
-          right: "12px",
-          zIndex: 1000,
-          padding: "10px 14px",
-          borderRadius: "12px",
-          border: "none",
-          background: "#556B2F",
-          color: "white",
-          cursor: "pointer",
-        }}
-      >
-        Flöde
-      </button>
+          <MapActionBar
+            onOpenNotifications={handleToggleNotifications}
+            onOpenCommunity={handleToggleCommunity}
+            onOpenFilters={handleToggleFilters}
+          />
+        </>
+      )}
 
       {profileOpen && (
         <ProfilePanel
@@ -201,3 +204,4 @@ export default function App() {
     </div>
   );
 }
+
