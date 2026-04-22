@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-import { users } from "../data/users";
+import { addUser, findUserByUsername } from "../data/store";
 
 const router = Router();
 
@@ -43,7 +43,7 @@ router.post("/login", (req: Request, res: Response) => {
     });
   }
 
-  const user = users.find((u) => u.username === username);
+  const user = findUserByUsername(username);
 
   if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
     return res.status(401).json({
@@ -74,7 +74,7 @@ router.post("/register", (req: Request, res: Response) => {
     });
   }
 
-  const usernameExists = users.some((u) => u.username === username);
+  const usernameExists = Boolean(findUserByUsername(username));
 
   if (usernameExists) {
     return res.status(409).json({
@@ -88,7 +88,7 @@ router.post("/register", (req: Request, res: Response) => {
     passwordHash: bcrypt.hashSync(password, 10),
   };
 
-  users.push(newUser);
+  addUser(newUser);
 
   const token = createToken(newUser);
 
