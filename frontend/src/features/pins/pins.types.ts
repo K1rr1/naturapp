@@ -4,7 +4,7 @@ export type CategoryFilter = "alla" | PinCategory;
 
 export type OwnerFilter = "alla" | "mina" | "andras";
 
-export type EventFilter = "alla" | "medEvent" | "deltar";
+export type EventFilter = "alla" | "medEvent" | "utanEvent" | "deltar";
 
 
 export type CleanupEvent = {
@@ -15,6 +15,7 @@ export type CleanupEvent = {
   
 };
 export type StatusFilter = "öppna" | "åtgärdade" ;
+export type PinStatus = "öppen" | "åtgärdad";
 
 export type Pin = {
  
@@ -25,6 +26,6 @@ export type Pin = {
   category: PinCategory;
   createdBy: string;
   createdAt: string;
-  status?: string;
+  status?: PinStatus;
   cleanupEvent?: CleanupEvent;
 };

@@ -65,6 +65,7 @@ export default function MapFilters({
             <option value="skräp">Skräp</option>
             <option value="belysning">Belysning</option>
             <option value="trasigt">Trasigt</option>
+            <option value="övrigt">Övrigt</option>
           </select>
 
           <select
@@ -88,7 +89,14 @@ export default function MapFilters({
             <option value="andras">Andras rapporter</option>
           </select>
 
-          
+          <select
+            value={statusFilter}
+            onChange={(e) => onStatusFilterChange(e.target.value as StatusFilter)}
+            className="w-full rounded-2xl border border-stone-200 bg-stone-50 px-4 py-4 text-sm text-stone-800 outline-none transition focus:border-green-600 focus:bg-white"
+          >
+            <option value="öppna">Endast öppna</option>
+            <option value="åtgärdade">Endast åtgärdade</option>
+          </select>
 
           <button
             onClick={onReset}

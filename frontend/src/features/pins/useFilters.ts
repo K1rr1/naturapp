@@ -3,6 +3,7 @@ import type {
   CategoryFilter,
   OwnerFilter,
   EventFilter,
+  StatusFilter,
 } from "./pins.types";
 
 type UseFiltersParams = {
@@ -11,7 +12,7 @@ type UseFiltersParams = {
   ownerFilter: OwnerFilter;
   currentUserName: string;
   eventFilter: EventFilter;
-  statusFilter: string;
+  statusFilter: StatusFilter;
 };
 
 export function useFilters({// funktioner för att filtrera pins baserat på kategori, ägare och eventstatus
@@ -20,6 +21,7 @@ export function useFilters({// funktioner för att filtrera pins baserat på kat
   ownerFilter,
   currentUserName,
   eventFilter,
+  statusFilter,
 }: UseFiltersParams) {
   const filteredPins = pins.filter((pin) => {
     const matchesCategory =
@@ -34,8 +36,14 @@ export function useFilters({// funktioner för att filtrera pins baserat på kat
     const matchesEvent =
       eventFilter === "alla" ||
       (eventFilter === "medEvent" && pin.cleanupEvent) ||
+      (eventFilter === "utanEvent" && !pin.cleanupEvent) ||
       (eventFilter === "deltar" && participants.includes(currentUserName));
-    return matchesCategory && matchesOwner && matchesEvent;
+
+    const isOpen = pin.status !== "åtgärdad";
+    const matchesStatus =
+      statusFilter === "öppna" ? isOpen : pin.status === "åtgärdad";
+
+    return matchesCategory && matchesOwner && matchesEvent && matchesStatus;
 
   });
 
