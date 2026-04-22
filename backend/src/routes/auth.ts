@@ -1,5 +1,6 @@
 import { Router, Request, Response } from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import { users } from "../data/users";
 
 const router = Router();
@@ -12,10 +13,9 @@ type LoginBody = {
 type RegisterBody = {
   username?: string;
   password?: string;
-  
 };
 
-function createToken(user: { id: string; username: string; }) {
+function createToken(user: { id: string; username: string }) {
   const secret = process.env.JWT_SECRET;
 
   if (!secret) {
@@ -34,7 +34,8 @@ function createToken(user: { id: string; username: string; }) {
 }
 
 router.post("/login", (req: Request, res: Response) => {
-  const { username, password } = req.body as LoginBody;
+  const { username: rawUsername, password } = req.body as LoginBody;
+  const username = rawUsername?.trim();
 
   if (!username || !password) {
     return res.status(400).json({
@@ -42,43 +43,34 @@ router.post("/login", (req: Request, res: Response) => {
     });
   }
 
-  const user = users.find(
-    (u) => u.username === username && u.password === password
-  );
+  const user = users.find((u) => u.username === username);
 
-  if (!user) {
+  if (!user || !bcrypt.compareSync(password, user.passwordHash)) {
     return res.status(401).json({
       message: "Fel användarnamn eller lösenord.",
     });
   }
 
-  const token = jwt.sign(
-  {
-    sub: user.id,
-    username: user.username,
-    
-  },
-  process.env.JWT_SECRET as string,
-  { expiresIn: "1h" }
-);
+  const token = createToken(user);
 
   return res.json({
     token,
     user: {
       id: user.id,
       username: user.username,
-      
+      name: user.username,
       mode: "user",
     },
   });
 });
 
 router.post("/register", (req: Request, res: Response) => {
-  const { username, password, } = req.body as RegisterBody;
+  const { username: rawUsername, password } = req.body as RegisterBody;
+  const username = rawUsername?.trim();
 
-  if (!username || !password ) {
+  if (!username || !password) {
     return res.status(400).json({
-      message: "Namn, användarnamn och lösenord krävs.",
+      message: "Användarnamn och lösenord krävs.",
     });
   }
 
@@ -93,8 +85,7 @@ router.post("/register", (req: Request, res: Response) => {
   const newUser = {
     id: `user-${Date.now()}`,
     username,
-    password,
-    
+    passwordHash: bcrypt.hashSync(password, 10),
   };
 
   users.push(newUser);

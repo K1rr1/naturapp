@@ -5,7 +5,6 @@ export type AuthenticatedRequest = Request & {
   user?: {
     sub: string;
     username: string;
-    name: string;
     iat?: number;
     exp?: number;
   };
@@ -23,12 +22,14 @@ export function authMiddleware(
   }
 
   const token = authHeader.split(" ")[1];
+  const secret = process.env.JWT_SECRET;
+
+  if (!secret) {
+    return res.status(500).json({ message: "JWT_SECRET saknas i backend." });
+  }
 
   try {
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET as string
-    ) as AuthenticatedRequest["user"];
+    const decoded = jwt.verify(token, secret) as AuthenticatedRequest["user"];
 
     req.user = decoded;
     next();
