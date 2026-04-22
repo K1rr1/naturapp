@@ -1,6 +1,6 @@
 import type { Report } from "../types/report.types";
 
-export const reports: Report[] = [
+export const defaultReports: Report[] = [
   {
     id: 1,
     lat: 57.7089,
@@ -8,7 +8,7 @@ export const reports: Report[] = [
     text: "Skräp nära gångvägen.",
     category: "skräp",
     createdBy: "user-456",
-    createdAt: new Date().toISOString(),
+    createdAt: "2026-01-01T12:00:00.000Z",
     status: "öppen",
   },
 ];

@@ -1,5 +1,5 @@
 import { Router, Response } from "express";
-import { reports } from "../data/reports";
+import { addReport, getReports, updateReportStatus } from "../data/store";
 import { authMiddleware, AuthenticatedRequest } from "../middleware/authMiddleware";
 import type { ReportCategory, ReportStatus } from "../types/report.types";
 
@@ -17,7 +17,7 @@ type UpdateStatusBody = {
 };
 
 router.get("/reports", (_req, res: Response) => {
-  return res.json(reports);
+  return res.json(getReports());
 });
 
 router.post(
@@ -54,7 +54,7 @@ router.post(
       status: "öppen" as const,
     };
 
-    reports.unshift(newReport);
+    addReport(newReport);
 
     return res.status(201).json(newReport);
   }
@@ -73,7 +73,7 @@ router.patch(
       });
     }
 
-    const report = reports.find((item) => item.id === reportId);
+    const report = getReports().find((item) => item.id === reportId);
 
     if (!report) {
       return res.status(404).json({
@@ -87,9 +87,8 @@ router.patch(
       });
     }
 
-    report.status = status;
-
-    return res.json(report);
+    const updatedReport = updateReportStatus(reportId, status);
+    return res.json(updatedReport);
   }
 );
 

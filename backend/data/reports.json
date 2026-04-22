@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "lat": 57.7089,
+    "lng": 11.9746,
+    "text": "Skräp nära gångvägen.",
+    "category": "skräp",
+    "createdBy": "user-456",
+    "createdAt": "2026-01-01T12:00:00.000Z",
+    "status": "öppen"
+  }
+]
